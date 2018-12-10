@@ -18,8 +18,10 @@ services:
     depends_on:
       - "mysql"
     command: ["httpd", "-D", "FOREGROUND"]
+    container_name: rucio-server
   mysql:
-    image: mysql/mysql-server:5.7
+    image: mysql/latest
+    container_name: rucio-mysql
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=True
       - MYSQL_DATABASE=rucio
