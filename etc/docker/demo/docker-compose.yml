@@ -20,7 +20,7 @@ services:
     command: ["httpd", "-D", "FOREGROUND"]
     container_name: rucio-server
   mysql:
-    image: mysql/latest
+    image: mysql/mysql-server
     container_name: rucio-mysql
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=True
