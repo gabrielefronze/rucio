@@ -11,6 +11,8 @@ version: "2"
 services:
   rucio:
     build: .
+    image: rucio/rucio:latest
+    container_name: rucio-server
     ports:
       - "443:443"
     links:
@@ -18,9 +20,8 @@ services:
     depends_on:
       - "mysql"
     command: ["httpd", "-D", "FOREGROUND"]
-    container_name: rucio-server
   mysql:
-    image: mysql/mysql-server
+    image: mysql/mysql-server:latest
     container_name: rucio-mysql
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=True
@@ -28,4 +29,3 @@ services:
       - MYSQL_USER=rucio
       - MYSQL_PASSWORD=rucio
       - MYSQL_ROOT_HOST=%
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
