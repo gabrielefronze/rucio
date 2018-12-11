@@ -28,3 +28,4 @@ services:
       - MYSQL_USER=rucio
       - MYSQL_PASSWORD=rucio
       - MYSQL_ROOT_HOST=%
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
