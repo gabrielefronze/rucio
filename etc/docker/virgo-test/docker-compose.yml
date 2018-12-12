@@ -9,6 +9,31 @@
 
 version: "2"
 services:
+  rucio-client:
+      build:
+        context: ./rucio-client
+        dockerfile: Dockerfile
+      image: slidspitfire/rucio-client:latest
+      container_name: rucio-client
+      links:
+        - rucio-server:rucio-server
+      depends_on:
+        - "rucio"
+      command: ["httpd", "-D", "FOREGROUND"]
+  rucio-server:
+    build:
+      context: ./rucio-server
+      dockerfile: Dockerfile
+    image: slidspitfire/rucio-server:latest
+    container_name: rucio-server
+    ports:
+      - "443:443"
+      - "80:80"
+    links:
+      - mysql:mysql
+    depends_on:
+      - "mysql"
+    command: ["httpd", "-D", "FOREGROUND"]
   mysql:
     image: mysql/mysql-server:5.7
     container_name: rucio-mysql

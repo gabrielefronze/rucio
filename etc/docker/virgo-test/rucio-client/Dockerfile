@@ -8,34 +8,20 @@
 # - Thomas Beermann, <thomas.beermann@cern.ch>, 2018
 # - Cedric Serfon, <cedric.serfon@cern.ch>, 2018
 
-FROM centos/python-37-centos7
+FROM centos/python-27-centos7
 
 RUN pip install rucio-clients
 
-# WORKDIR /opt
+WORKDIR /opt
 
 ADD rucio.cfg /opt/rucio/etc/
 RUN chmod 644 /opt/rucio/etc/rucio.cfg
-# ADD alembic.ini /opt/rucio/etc/
-# RUN chmod 644 /opt/rucio/etc/alembic.ini
-# ADD aliases-py27.conf /opt/rucio/etc/web/
-# RUN chmod 644 /opt/rucio/etc/web/aliases-py27.conf
-# ADD ui-aliases-py27.conf /opt/rucio/etc/web/
-# RUN chmod 644 /opt/rucio/etc/web/ui-aliases-py27.conf
-# ADD automatix.json /opt/rucio/etc/
-
-# RUN mkdir /opt/rucio/tools
-# ADD dump_schema.py /opt/rucio/tools
-# RUN chmod 755 /opt/rucio/tools/dump_schema.py
 ADD activate_rucio_global_completion.sh /opt/rucio/tools
 RUN cat /opt/rucio/tools/activate_rucio_global_completion.sh >> /root/.bashrc
 
 RUN mkdir /var/log/rucio
 RUN mkdir /var/log/rucio/trace
 RUN chmod 777 /var/log/rucio
-
-# ADD httpd.conf /etc/httpd/conf/httpd.conf
-# ADD rucio.conf /etc/httpd/conf.d/rucio.conf
 
 ADD ../certs/ca.pem /opt/rucio/etc/web/CERN-bundle.pem
 ADD ../certs/ca.pem /opt/rucio/etc/web/ca.crt
