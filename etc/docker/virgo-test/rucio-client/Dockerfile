@@ -21,7 +21,7 @@ WORKDIR /opt
 ADD rucio.cfg /opt/rucio/etc/
 RUN chmod 644 /opt/rucio/etc/rucio.cfg
 ADD activate_rucio_global_completion.sh /opt/rucio/tools
-RUN cat /opt/rucio/tools/activate_rucio_global_completion.sh >> /root/.bashrc
+RUN cat /opt/rucio/tools/activate_rucio_global_completion.sh >> /root/.bash_profile
 
 RUN mkdir /var/log/rucio
 RUN mkdir /var/log/rucio/trace
