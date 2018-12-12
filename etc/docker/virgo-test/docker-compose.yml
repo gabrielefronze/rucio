@@ -10,6 +10,7 @@
 version: "2"
 services:
   rucio-client:
+      privileged: true
       build:
         context: ./rucio-client
         dockerfile: Dockerfile
