@@ -15,21 +15,21 @@ RUN pip install rucio-clients
 WORKDIR /opt
 
 ADD rucio.cfg /opt/rucio/etc/
-RUN chmod 644 /opt/rucio/etc/rucio.cfg
+RUN sudo chmod 644 /opt/rucio/etc/rucio.cfg
 ADD activate_rucio_global_completion.sh /opt/rucio/tools
 RUN cat /opt/rucio/tools/activate_rucio_global_completion.sh >> /root/.bashrc
 
 RUN mkdir /var/log/rucio
 RUN mkdir /var/log/rucio/trace
-RUN chmod 777 /var/log/rucio
+RUN sudo chmod 777 /var/log/rucio
 
-ADD ../certs/ca.pem /opt/rucio/etc/web/CERN-bundle.pem
-ADD ../certs/ca.pem /opt/rucio/etc/web/ca.crt
-ADD ../certs/usercert.pem /opt/rucio/etc/web/usercert.pem
+ADD certs/ca.pem /opt/rucio/etc/web/CERN-bundle.pem
+ADD certs/ca.pem /opt/rucio/etc/web/ca.crt
+ADD certs/usercert.pem /opt/rucio/etc/web/usercert.pem
 
-ADD ../certs/server.crt /etc/grid-security/hostcert.pem
-ADD ../certs/server.key /etc/grid-security/hostkey.pem
-RUN chmod 400 /etc/grid-security/hostkey.pem
+ADD certs/server.crt /etc/grid-security/hostcert.pem
+ADD certs/server.key /etc/grid-security/hostkey.pem
+RUN sudo chmod 400 /etc/grid-security/hostkey.pem
 
 ADD setup_demo.sh /
 ADD setup_data.py /
