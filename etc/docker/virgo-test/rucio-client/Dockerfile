@@ -10,11 +10,11 @@
 
 FROM centos/python-27-centos7
 
-# USER root
+USER root
 
 # # RUN yum install sudo
 
-RUN yum install sudo
+# RUN yum install git
 # RUN git clone https://github.com/rucio/rucio.git
 # WORKDIR rucio
 # RUN pip install --upgrade setuptools
@@ -23,7 +23,7 @@ RUN yum install sudo
 WORKDIR /opt
 
 ADD rucio.cfg /opt/rucio/etc/
-RUN sudo chmod 644 /opt/rucio/etc/rucio.cfg
+RUN chmod 644 /opt/rucio/etc/rucio.cfg
 
 # ADD activate_rucio_global_completion.sh /opt/rucio/tools
 # RUN cat /opt/rucio/tools/activate_rucio_global_completion.sh >> /root/.bash_profile
@@ -38,7 +38,7 @@ ADD certs/usercert.pem /opt/rucio/etc/web/usercert.pem
 
 ADD certs/server.crt /etc/grid-security/hostcert.pem
 ADD certs/server.key /etc/grid-security/hostkey.pem
-RUN sudo chmod 400 /etc/grid-security/hostkey.pem
+RUN chmod 400 /etc/grid-security/hostkey.pem
 
 # ADD setup_demo.sh /
 # ADD setup_data.py /
