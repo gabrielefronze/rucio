@@ -14,4 +14,4 @@ services:
     image: rucio/rucio:latest
     container_name: rucio-rse
     ports:
-      - "443:443"
+      - "443:4430"
