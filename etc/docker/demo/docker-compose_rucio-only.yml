@@ -16,8 +16,8 @@ services:
     ports:
       - "443:443"
       - "80:80"
-    links:
-      - mysql:mysql
+    # links:
+    #   - mysql:mysql
     command: ["httpd", "-D", "FOREGROUND"]
   # mysql:
   #   image: mysql/mysql-server:5.7
