@@ -18,7 +18,7 @@ services:
       links:
         - rucio-server:rucio-server
       depends_on:
-        - "rucio"
+        - "rucio-server"
       command: ["httpd", "-D", "FOREGROUND"]
   rucio-server:
     build:
