@@ -9,16 +9,6 @@
 
 version: "2"
 services:
-  # rucio:
-  #   build: .
-  #   image: rucio/rucio:latest
-  #   container_name: rucio-server
-  #   ports:
-  #     - "443:443"
-  #     - "80:80"
-  #   links:
-  #     - mysql:mysql
-  #   command: ["httpd", "-D", "FOREGROUND"]
   mysql:
     image: mysql/mysql-server:5.7
     container_name: rucio-mysql
