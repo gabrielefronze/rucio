@@ -8,12 +8,15 @@
 # - Thomas Beermann, <thomas.beermann@cern.ch>, 2018
 # - Cedric Serfon, <cedric.serfon@cern.ch>, 2018
 
-FROM centos/python-36-centos7
+FROM centos/python-27-centos7
 
 USER root
 
 # RUN yum install sudo
 
+# RUN pip install utils db rucio rucio-clients
+# RUN pip install db
+# RUN pip install rucio
 RUN pip install rucio-clients
 
 # WORKDIR /opt
