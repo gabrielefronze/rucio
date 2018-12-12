@@ -8,7 +8,7 @@
 # - Thomas Beermann, <thomas.beermann@cern.ch>, 2018
 # - Cedric Serfon, <cedric.serfon@cern.ch>, 2018
 
-FROM centos/centos:latest
+FROM centos/centos:7
 
 USER root
 
