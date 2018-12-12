@@ -11,7 +11,7 @@ version: "2"
 services:
   rucio:
     build: .
-    image: centos/centos:7
+    image: centos/python-27-centos7
     container_name: rucio-client
     ports:
       - "4430:443"
