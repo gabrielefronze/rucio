@@ -11,7 +11,7 @@ version: "2"
 services:
   rucio:
     build: .
-    image: rucio/rucio-systemd-cc7
+    image: centos/centos:7
     container_name: rucio-client
     ports:
       - "4430:443"

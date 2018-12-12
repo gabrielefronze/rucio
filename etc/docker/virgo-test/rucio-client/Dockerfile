@@ -8,7 +8,7 @@
 # - Thomas Beermann, <thomas.beermann@cern.ch>, 2018
 # - Cedric Serfon, <cedric.serfon@cern.ch>, 2018
 
-FROM rucio/rucio-systemd-cc7
+FROM centos/python-27-centos7
 
 RUN pip install rucio-clients
 
