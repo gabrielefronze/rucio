@@ -10,7 +10,6 @@
 version: "2"
 services:
   rucio-client:
-      privileged: true
       build:
         context: ./rucio-client
         dockerfile: Dockerfile
@@ -20,6 +19,7 @@ services:
         - rucio-server:rucio-server
       depends_on:
         - "rucio-server"
+        - "mysql"
       tty: true
   rucio-server:
     build:
