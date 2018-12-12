@@ -17,6 +17,7 @@ USER root
 RUN yum install git
 RUN git clone https://github.com/rucio/rucio.git
 WORKDIR rucio
+RUN pip install --upgrade setuptools
 RUN python setup.py install
 
 WORKDIR /opt
