@@ -16,7 +16,7 @@ etc/web/lighttpd*.conf
 etc/alembic.ini
 etc/ldap.cfg
 etc/rucio-server-gcs.json
-alembic.ini
+# alembic.ini
 .gitlabkey
 .githubtoken
 
@@ -27,7 +27,7 @@ demoCA
 full.pem
 proxy.pem
 request.pem
-usercert.pem
+# usercert.pem
 userkey.pem
 
 # ignore MANIFEST file
