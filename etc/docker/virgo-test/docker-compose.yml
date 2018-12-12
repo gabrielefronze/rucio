@@ -20,7 +20,6 @@ services:
         - rucio-server:rucio-server
       depends_on:
         - "rucio-server"
-      command: ["/bin/bash", "", "FOREGROUND"]
   rucio-server:
     build:
       context: ./rucio-server
