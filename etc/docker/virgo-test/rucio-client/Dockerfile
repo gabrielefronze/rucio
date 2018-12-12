@@ -14,10 +14,11 @@ USER root
 
 # RUN yum install sudo
 
-# RUN pip install utils db rucio rucio-clients
-# RUN pip install db
-# RUN pip install rucio
+RUN wget --no-check-certificate https://raw.github.com/pypa/virtualenv/master/virtualenv.py
+RUN python virtualenv.py rucio
+RUN source rucio/bin/activate.csh
 RUN pip install rucio-clients
+RUN export RUCIO_HOME=`pwd`/rucio/
 
 # WORKDIR /opt
 
