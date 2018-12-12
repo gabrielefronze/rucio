@@ -1,3 +1,4 @@
+#!/bin/bash -e
 # Copyright 2014-2018 CERN for the benefit of the ATLAS collaboration.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -7,15 +8,6 @@
 # Authors:
 # - Thomas Beermann, <thomas.beermann@cern.ch>, 2018
 
-version: "2"
-services:
-  rucio:
-    build: .
-    image: rucio/rucio:latest
-    container_name: rucio-server
-    ports:
-      - "443:443"
-      - "80:80"
-    # links:
-    #   - mysql:mysql
-    command: ["httpd", "-D", "FOREGROUND"]
+python /setup_data.py
+
+/usr/bin/rucio-automatix --run-once --input-file /opt/rucio/etc/automatix.json
