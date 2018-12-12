@@ -10,15 +10,15 @@
 
 FROM centos/python-27-centos7
 
-USER root
+# USER root
 
-# RUN yum install sudo
+# # RUN yum install sudo
 
-RUN yum install git
-RUN git clone https://github.com/rucio/rucio.git
-WORKDIR rucio
-RUN pip install --upgrade setuptools
-RUN python setup.py install
+# RUN yum install git
+# RUN git clone https://github.com/rucio/rucio.git
+# WORKDIR rucio
+# RUN pip install --upgrade setuptools
+# RUN python setup.py install
 
 WORKDIR /opt
 
