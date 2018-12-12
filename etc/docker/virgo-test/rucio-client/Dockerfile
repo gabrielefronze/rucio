@@ -8,7 +8,7 @@
 # - Thomas Beermann, <thomas.beermann@cern.ch>, 2018
 # - Cedric Serfon, <cedric.serfon@cern.ch>, 2018
 
-FROM centos/python-26-centos7
+FROM centos/centos7
 
 USER root
 
