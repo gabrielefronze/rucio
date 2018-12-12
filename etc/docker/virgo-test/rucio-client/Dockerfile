@@ -12,7 +12,7 @@ FROM centos/python-36-centos7
 
 USER root
 
-RUN yum install sudo
+# RUN yum install sudo
 
 RUN pip install rucio-clients
 
