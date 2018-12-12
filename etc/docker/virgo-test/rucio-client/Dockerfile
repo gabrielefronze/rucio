@@ -14,13 +14,12 @@ USER root
 
 # RUN yum install sudo
 
-RUN wget --no-check-certificate https://raw.github.com/pypa/virtualenv/master/virtualenv.py
-RUN python virtualenv.py rucio
-RUN source rucio/bin/activate.csh
-RUN pip install rucio-clients
-RUN export RUCIO_HOME=`pwd`/rucio/
+RUN yum install git
+RUN git clone https://github.com/rucio/rucio.git
+WORKDIR rucio
+RUN python setup.py install
 
-# WORKDIR /opt
+WORKDIR /opt
 
 ADD rucio.cfg /opt/rucio/etc/
 RUN chmod 644 /opt/rucio/etc/rucio.cfg
