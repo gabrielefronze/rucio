@@ -26,6 +26,7 @@ RUN rm -f get-pip.py
 RUN yum groupinstall "Development Tools" -y
 RUN yum install python-devel -y
 RUN yum install openssl-devel -y
+RUN yum install MySQL-python -y
 RUN git clone https://github.com/rucio/rucio.git
 
 WORKDIR /tmp/rucio
