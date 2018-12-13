@@ -12,21 +12,26 @@ FROM centos:latest
 
 USER root
 
-# # RUN yum install sudo
-
-# RUN yum install git
-# RUN git clone https://github.com/rucio/rucio.git
-# WORKDIR rucio
-# RUN pip install --upgrade setuptools
-# RUN python setup.py install
-
 WORKDIR /opt
 
 ADD rucio.cfg /opt/rucio/etc/
 RUN chmod 644 /opt/rucio/etc/rucio.cfg
 
-# ADD activate_rucio_global_completion.sh /opt/rucio/tools
-# RUN cat /opt/rucio/tools/activate_rucio_global_completion.sh >> /root/.bash_profile
+WORKDIR /tmp
+
+RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+RUN python2.7 get-pip.py
+RUN yum groupinstall "Development Tools"
+RUN yum install python-devel
+RUN yum install openssl-devel
+RUN git clone https://github.com/rucio/rucio.git
+RUN python2.7 rucio/setup.py install
+RUN rm -rf rucio
+
+WORKDIR /opt
+
+ADD activate_rucio_global_completion.sh /opt/rucio/tools
+RUN cat /opt/rucio/tools/activate_rucio_global_completion.sh >> /root/.bash_profile
 
 # RUN mkdir /var/log/rucio
 # RUN mkdir /var/log/rucio/trace
