@@ -21,9 +21,10 @@ WORKDIR /tmp
 
 RUN curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
 RUN python2.7 get-pip.py
-RUN yum groupinstall "Development Tools"
-RUN yum install python-devel
-RUN yum install openssl-devel
+RUN rm -f get-pip.py
+RUN yum groupinstall "Development Tools" -y
+RUN yum install python-devel -y
+RUN yum install openssl-devel -y
 RUN git clone https://github.com/rucio/rucio.git
 RUN python2.7 rucio/setup.py install
 RUN rm -rf rucio
