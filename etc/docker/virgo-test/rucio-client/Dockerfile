@@ -25,9 +25,9 @@ RUN rm -f get-pip.py
 RUN yum groupinstall "Development Tools" -y
 RUN yum install python-devel -y
 RUN yum install openssl-devel -y
-RUN git clone https://github.com/rucio/rucio.git
-RUN python2.7 rucio/setup.py install
-RUN rm -rf rucio
+# RUN git clone https://github.com/rucio/rucio.git
+# RUN python2.7 rucio/setup.py install
+# RUN rm -rf rucio
 
 WORKDIR /opt
 
