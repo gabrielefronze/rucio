@@ -25,18 +25,24 @@ RUN rm -f get-pip.py
 RUN yum groupinstall "Development Tools" -y
 RUN yum install python-devel -y
 RUN yum install openssl-devel -y
-# RUN git clone https://github.com/rucio/rucio.git
-# RUN python2.7 rucio/setup.py install
-# RUN rm -rf rucio
+RUN git clone https://github.com/rucio/rucio.git
+
+WORKDIR /tmp/rucio
+
+RUN python2.7 setup.py install
+
+WORKDIR /tmp
+
+RUN rm -rf rucio
 
 WORKDIR /opt
 
 # ADD activate_rucio_global_completion.sh /opt/rucio/tools
 # RUN cat /opt/rucio/tools/activate_rucio_global_completion.sh >> /root/.bash_profile
 
-# RUN mkdir /var/log/rucio
-# RUN mkdir /var/log/rucio/trace
-# RUN chmod 777 /var/log/rucio
+RUN mkdir /var/log/rucio
+RUN mkdir /var/log/rucio/trace
+RUN chmod 777 /var/log/rucio
 
 ADD certs/ca.pem /opt/rucio/etc/web/CERN-bundle.pem
 ADD certs/ca.pem /opt/rucio/etc/web/ca.crt
@@ -52,4 +58,4 @@ RUN chmod 400 /etc/grid-security/hostkey.pem
 
 # EXPOSE 443
 
-# ENV PATH $PATH:/opt/rucio/bin
+ENV PATH $PATH:/opt/rucio/bin
