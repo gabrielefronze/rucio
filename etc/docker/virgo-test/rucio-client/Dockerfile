@@ -14,6 +14,7 @@ USER root
 
 WORKDIR /opt
 
+ADD ca.repo /etc/yum.repos.d/ca.repo
 ADD rucio.cfg /opt/rucio/etc/
 RUN chmod 644 /opt/rucio/etc/rucio.cfg
 
