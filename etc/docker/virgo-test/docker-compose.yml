@@ -42,8 +42,8 @@ services:
     image: slidspitfire/rucio-server:latest
     container_name: rucio-server
     ports:
-      - "443:443"
-      - "80:80"
+      # - "443:443"
+      # - "80:80"
     links:
       - mysql:mysql
     depends_on:
