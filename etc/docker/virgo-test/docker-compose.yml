@@ -21,20 +21,20 @@ services:
         - "rucio-server"
         - "mysql"
       tty: true
-  rucio-ui:
-    build:
-      context: ./rucio-ui
-      dockerfile: Dockerfile
-    image: slidspitfire/rucio-ui:latest
-    container_name: rucio-ui
-    ports:
-      - "9443:9443"
-      # - "80:80"
-    links:
-      - mysql:mysql
-    depends_on:
-      - "mysql"
-    command: ["httpd", "-D", "FOREGROUND"]
+  # rucio-ui:
+  #   build:
+  #     context: ./rucio-ui
+  #     dockerfile: Dockerfile
+  #   image: slidspitfire/rucio-ui:latest
+  #   container_name: rucio-ui
+  #   ports:
+  #     - "9443:9443"
+  #     # - "80:80"
+  #   links:
+  #     - mysql:mysql
+  #   depends_on:
+  #     - "mysql"
+  #   command: ["httpd", "-D", "FOREGROUND"]
   rucio-server:
     build:
       context: ./rucio-server
@@ -43,12 +43,12 @@ services:
     container_name: rucio-server
     ports:
       - "443:443"
-      # - "80:80"
+      - "80:80"
     links:
       - mysql:mysql
     depends_on:
       - "mysql"
-    # command: ["httpd", "-D", "FOREGROUND"]
+    command: ["httpd", "-D", "FOREGROUND"]
   mysql:
     image: mysql/mysql-server:5.7
     container_name: rucio-mysql
