@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile
     image: slidspitfire/rucio-server:latest
     container_name: rucio-server
-    ports:
+    # ports:
       # - "443:443"
       # - "80:80"
     links:
