@@ -29,7 +29,6 @@ services:
     container_name: rucio-ui
     ports:
       - "443:443"
-      # - "80:80"
     links:
       - mysql:mysql
     depends_on:
@@ -42,14 +41,12 @@ services:
     image: slidspitfire/rucio-server:latest
     container_name: rucio-server
     ports:
-      - "443:9443"
-      # - "80:80"
+      - "9443:443"
     links:
       - mysql:mysql
     depends_on:
       - "mysql"
     tty: true
-    # command: ["httpd", "-D", "FOREGROUND"]
   mysql:
     image: mysql/mysql-server:5.7
     container_name: rucio-mysql
