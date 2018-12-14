@@ -36,8 +36,8 @@ RUN mkdir /var/log/rucio
 RUN mkdir /var/log/rucio/trace
 RUN chmod 777 /var/log/rucio
 
-ADD httpd.conf /etc/httpd/conf/httpd.conf
-ADD rucio.conf /etc/httpd/conf.d/rucio.conf
+# ADD httpd.conf /etc/httpd/conf/httpd.conf
+# ADD rucio.conf /etc/httpd/conf.d/rucio.conf
 
 ADD certs/ca.pem /opt/rucio/etc/web/CERN-bundle.pem
 ADD certs/ca.pem /opt/rucio/etc/web/ca.crt
@@ -53,9 +53,9 @@ ADD wait-for-it.sh /
 
 WORKDIR /opt/rucio
 
-RUN rm /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/autoindex.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/welcome.conf
+# RUN rm /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/autoindex.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/welcome.conf
 
 EXPOSE 443
-EXPOSE 80
+# EXPOSE 80
 
 ENV PATH $PATH:/opt/rucio/bin
