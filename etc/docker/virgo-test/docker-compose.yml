@@ -28,7 +28,7 @@ services:
     image: slidspitfire/rucio-ui:latest
     container_name: rucio-ui
     ports:
-      - "9443:9443"
+      - "443:443"
       # - "80:80"
     links:
       - mysql:mysql
@@ -41,8 +41,8 @@ services:
       dockerfile: Dockerfile
     image: slidspitfire/rucio-server:latest
     container_name: rucio-server
-    # ports:
-      # - "443:443"
+    ports:
+      - "443:9443"
       # - "80:80"
     links:
       - mysql:mysql

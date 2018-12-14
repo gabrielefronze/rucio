@@ -55,7 +55,7 @@ WORKDIR /opt/rucio
 
 # RUN rm /etc/httpd/conf.d/ssl.conf /etc/httpd/conf.d/autoindex.conf /etc/httpd/conf.d/userdir.conf /etc/httpd/conf.d/welcome.conf
 
-# EXPOSE 443
+EXPOSE 443
 # EXPOSE 80
 
 ENV PATH $PATH:/opt/rucio/bin
