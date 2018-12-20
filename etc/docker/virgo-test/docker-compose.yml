@@ -52,7 +52,6 @@ services:
     container_name: rucio-mysql
     volumes:
       - ./mysql-config:/mysql-config
-    command: ["cp", "-f", "/mysql-config/my-master.cnf", "/etc/my.cnf"]
     environment:
       - MYSQL_ROOT_PASSWORD=pippo123
       - MYSQL_DATABASE=rucio
