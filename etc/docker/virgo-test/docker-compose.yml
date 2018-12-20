@@ -53,7 +53,7 @@ services:
     volumes:
       - mysql-config/my-master.cnf:/etc/my.cnf
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=True
+      - MYSQL_ROOT_PASSWORD=pippo123
       - MYSQL_DATABASE=rucio
       - MYSQL_USER=rucio
       - MYSQL_PASSWORD=rucio
