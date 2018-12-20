@@ -50,6 +50,8 @@ services:
   mysql:
     image: mysql/mysql-server:5.7
     container_name: rucio-mysql
+    volumes:
+      - mysql-config/my-master.cnf:/etc/my.cnf
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=True
       - MYSQL_DATABASE=rucio
