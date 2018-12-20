@@ -19,7 +19,7 @@ services:
         - rucio-server:rucio-server
       depends_on:
         - "rucio-server"
-        - "mysql"
+        - "postgres"
       tty: true
   rucio-ui:
     build:
@@ -30,9 +30,9 @@ services:
     ports:
       - "443:443"
     links:
-      - mysql:mysql
+      - postgres:postgres
     depends_on:
-      - "mysql"
+      - "postgres"
     command: ["httpd", "-D", "FOREGROUND"]
   rucio-server:
     build:
@@ -43,18 +43,20 @@ services:
     ports:
       - "9443:443"
     links:
-      - mysql:mysql
+      - postgres:postgres
     depends_on:
-      - "mysql"
+      - "postgres"
     command: ["httpd", "-D", "FOREGROUND"]
-  mysql:
-    image: mysql/mysql-server:5.7
-    container_name: rucio-mysql
+  postgres:
+    image: postgres:10.3
+    container_name: rucio-db
     volumes:
-      - ./mysql-config:/mysql-config
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
     environment:
-      - MYSQL_ROOT_PASSWORD=pippo123
-      - MYSQL_DATABASE=rucio
-      - MYSQL_USER=rucio
-      - MYSQL_PASSWORD=rucio
-      - MYSQL_ROOT_HOST=%
+      - POSTGRES_PASSWORD=pippo123
+
+volumes:
+  pg_data:
+    external: true
