@@ -50,13 +50,14 @@ services:
   postgres:
     image: postgres:10.3
     container_name: rucio-db
-    volumes:
-      - pg_data:/var/lib/postgresql/data
     ports:
       - 5432:5432
     environment:
       - POSTGRES_PASSWORD="pippo123"
-
-volumes:
-  pg_data:
-    external: true
+  postgres-backup:
+    image: postgres:10.3
+    container_name: rucio-db-backup
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD="pippo123"
