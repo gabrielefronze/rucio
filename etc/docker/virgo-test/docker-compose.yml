@@ -55,7 +55,7 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_PASSWORD=pippo123
+      - POSTGRES_PASSWORD="pippo123"
 
 volumes:
   pg_data:
