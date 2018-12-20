@@ -39,9 +39,6 @@ RUN rm -rf rucio
 
 WORKDIR /opt
 
-# ADD activate_rucio_global_completion.sh /opt/rucio/tools
-# RUN cat /opt/rucio/tools/activate_rucio_global_completion.sh >> /root/.bash_profile
-
 RUN mkdir /var/log/rucio
 RUN mkdir /var/log/rucio/trace
 RUN chmod 777 /var/log/rucio
@@ -49,15 +46,5 @@ RUN chmod 777 /var/log/rucio
 ADD certs/ca.pem /opt/rucio/etc/web/CERN-bundle.pem
 ADD certs/ca.pem /opt/rucio/etc/web/ca.crt
 ADD certs/usercert.pem /opt/rucio/etc/web/usercert.pem
-
-ADD certs/server.crt /etc/grid-security/hostcert.pem
-ADD certs/server.key /etc/grid-security/hostkey.pem
-RUN chmod 400 /etc/grid-security/hostkey.pem
-
-# ADD setup_demo.sh /
-# ADD setup_data.py /
-# ADD wait-for-it.sh /
-
-# EXPOSE 443
 
 ENV PATH $PATH:/opt/rucio/bin
