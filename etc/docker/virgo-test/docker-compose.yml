@@ -58,6 +58,6 @@ services:
     image: postgres:10.3
     container_name: rucio-db-backup
     ports:
-      - 5432:5432
+      - 54320:5432
     environment:
       - POSTGRES_PASSWORD="pippo123"
