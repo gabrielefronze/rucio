@@ -47,18 +47,6 @@ services:
     depends_on:
       - "rucio-db"
     command: ["httpd", "-D", "FOREGROUND"]
-  rucio-db:
-    build:
-      context: ./rucio-db-master
-      dockerfile: Dockerfile
-    image: slidspitfire/rucio-db-master:latest
-    container_name: rucio-db
-    depends_on:
-        - "rucio-db-slave"
-    ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_PASSWORD="pippo123"
   rucio-db-slave:
     build:
       context: ./rucio-db-slave
@@ -69,5 +57,15 @@ services:
       - 54320:5432
     links:
       - rucio-db:rucio-db
+    environment:
+      - POSTGRES_PASSWORD="pippo123"
+rucio-db:
+    build:
+      context: ./rucio-db-master
+      dockerfile: Dockerfile
+    image: slidspitfire/rucio-db-master:latest
+    container_name: rucio-db
+    ports:
+      - 5432:5432
     environment:
       - POSTGRES_PASSWORD="pippo123"
