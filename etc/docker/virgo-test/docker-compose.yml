@@ -19,7 +19,7 @@ services:
         - rucio-server:rucio-server
       depends_on:
         - "rucio-server"
-        - "postgres"
+        - "rucio-db"
       tty: true
   rucio-ui:
     build:
@@ -30,9 +30,9 @@ services:
     ports:
       - "443:443"
     links:
-      - postgres:postgres
+      - rucio-db:rucio-db
     depends_on:
-      - "postgres"
+      - "rucio-db"
     command: ["httpd", "-D", "FOREGROUND"]
   rucio-server:
     build:
@@ -43,20 +43,28 @@ services:
     ports:
       - "9443:443"
     links:
-      - postgres:postgres
+      - rucio-db:rucio-db
     depends_on:
-      - "postgres"
+      - "rucio-db"
     command: ["httpd", "-D", "FOREGROUND"]
-  postgres:
-    image: postgres:10.3
+  rucio-db:
+    build:
+      context: ./rucio-db-master
+      dockerfile: Dockerfile
+    image: slidspitfire/rucio-db-master:latest
     container_name: rucio-db
+    depends_on:
+        - "rucio-db-slave"
     ports:
       - 5432:5432
     environment:
       - POSTGRES_PASSWORD="pippo123"
-  postgres-backup:
-    image: postgres:10.3
-    container_name: rucio-db-backup
+  rucio-db-slave:
+    build:
+      context: ./rucio-db-slave
+      dockerfile: Dockerfile
+    image: slidspitfire/rucio-db-slave:latest
+    container_name: rucio-db-slave
     ports:
       - 54320:5432
     environment:
