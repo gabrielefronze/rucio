@@ -67,5 +67,7 @@ services:
     container_name: rucio-db-slave
     ports:
       - 54320:5432
+    links:
+      - rucio-db:rucio-db
     environment:
       - POSTGRES_PASSWORD="pippo123"
