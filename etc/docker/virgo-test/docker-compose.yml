@@ -54,7 +54,7 @@ services:
     image: slidspitfire/rucio-db-slave:latest
     container_name: rucio-db-slave
     ports:
-      - 54320:5432
+      - "54320:5432"
     links:
       - rucio-db:rucio-db
     environment:
@@ -66,6 +66,6 @@ services:
     image: slidspitfire/rucio-db-master:latest
     container_name: rucio-db
     ports:
-      - 5432:5432
+      - "5432:5432"
     environment:
       - POSTGRES_PASSWORD="pippo123"
