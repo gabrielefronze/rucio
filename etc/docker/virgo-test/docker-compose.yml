@@ -59,7 +59,7 @@ services:
       - rucio-db:rucio-db
     environment:
       - POSTGRES_PASSWORD="pippo123"
-rucio-db:
+  rucio-db:
     build:
       context: ./rucio-db-master
       dockerfile: Dockerfile
