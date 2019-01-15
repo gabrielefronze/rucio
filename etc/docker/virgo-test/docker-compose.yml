@@ -73,9 +73,9 @@ services:
     ports:
       - "54320:5432"
     networks:
-      - rucionetwork
-    aliases:
-      - rucio-db-slave
+      rucionetwork:
+        aliases:
+          - rucio-db-slave
     environment:
       - POSTGRES_PASSWORD="pippo123"
 
