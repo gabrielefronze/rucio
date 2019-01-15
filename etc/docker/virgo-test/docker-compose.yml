@@ -22,6 +22,7 @@ services:
       networks:
       - rucionetwork
       tty: true
+      
   rucio-ui:
     build:
       context: ./rucio-ui
@@ -36,6 +37,7 @@ services:
     networks:
       - rucionetwork
     command: ["httpd", "-D", "FOREGROUND"]
+
   rucio-server:
     build:
       context: ./rucio-server
@@ -50,6 +52,7 @@ services:
     depends_on:
       - "rucio-db"
     command: ["httpd", "-D", "FOREGROUND"]
+
   rucio-db:
     build:
       context: ./rucio-db-master
@@ -62,7 +65,11 @@ services:
     environment:
       - POSTGRES_PASSWORD="pippo123"
     networks:
-      - rucionetwork
+      rucionetwork:
+        ipv4_address: 172.24.0.7
+    extra_hosts:
+      - "rucio-db-slave:172.24.0.8"
+
   rucio-db-slave:
     build:
       context: ./rucio-db-slave
@@ -74,7 +81,9 @@ services:
       - "54320:5432"
     networks:
       rucionetwork:
-        ipv4_address: 172.24.0.7
+        ipv4_address: 172.24.0.8
+    extra_hosts:
+      - "rucio-db:172.24.0.7"
     environment:
       - POSTGRES_PASSWORD="pippo123"
 
