@@ -15,11 +15,16 @@ services:
         dockerfile: Dockerfile
       image: slidspitfire/rucio-client:latest
       container_name: rucio-client
+      hostname: rucio-client
       links:
         - rucio-server:rucio-server
       depends_on:
         - "rucio-server"
         - "rucio-db"
+      networks:
+      - rucionetwork
+      - aliases:
+        - rucio-client
       tty: true
   rucio-ui:
     build:
@@ -27,12 +32,17 @@ services:
       dockerfile: Dockerfile
     image: slidspitfire/rucio-ui:latest
     container_name: rucio-ui
+    hostname: rucio-ui
     ports:
       - "443:443"
     links:
       - rucio-db:rucio-db
     depends_on:
       - "rucio-db"
+    networks:
+      - rucionetwork
+      - aliases:
+        - rucio-ui
     command: ["httpd", "-D", "FOREGROUND"]
   rucio-server:
     build:
@@ -40,10 +50,15 @@ services:
       dockerfile: Dockerfile
     image: slidspitfire/rucio-server:latest
     container_name: rucio-server
+    hostname: rucio-server
     ports:
       - "9443:443"
     links:
       - rucio-db:rucio-db
+    networks:
+      - rucionetwork
+      - aliases:
+        - rucio-server
     depends_on:
       - "rucio-db"
     command: ["httpd", "-D", "FOREGROUND"]
@@ -53,19 +68,33 @@ services:
       dockerfile: Dockerfile
     image: slidspitfire/rucio-db-master:latest
     container_name: rucio-db
+    hostname: rucio-db
     links:
       - rucio-db-slave:rucio-db-slave
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_PASSWORD="pippo123"
+    networks:
+      - rucionetwork
+      - aliases:
+        - rucio-db
   rucio-db-slave:
     build:
       context: ./rucio-db-slave
       dockerfile: Dockerfile
     image: slidspitfire/rucio-db-slave:latest
     container_name: rucio-db-slave
+    hostname: rucio-db-slave
     ports:
       - "54320:5432"
+    networks:
+      - rucionetwork
+      - aliases:
+        - rucio-db-slave
     environment:
       - POSTGRES_PASSWORD="pippo123"
+
+networks:
+  rucionetwork:
+    driver: bridge
