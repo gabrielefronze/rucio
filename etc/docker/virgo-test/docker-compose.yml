@@ -81,3 +81,7 @@ services:
 networks:
   rucionetwork:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.24.0.0/4
+        - gateway: 172.24.0.1
