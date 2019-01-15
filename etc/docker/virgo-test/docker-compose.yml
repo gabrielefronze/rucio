@@ -15,6 +15,7 @@ services:
         dockerfile: Dockerfile
       image: slidspitfire/rucio-client:latest
       container_name: rucio-client
+      hostname: rucio-client
       depends_on:
         - "rucio-server"
         - "rucio-db"
@@ -27,6 +28,7 @@ services:
       dockerfile: Dockerfile
     image: slidspitfire/rucio-ui:latest
     container_name: rucio-ui
+    hostname: rucio-ui
     ports:
       - "443:443"
     depends_on:
@@ -40,6 +42,7 @@ services:
       dockerfile: Dockerfile
     image: slidspitfire/rucio-server:latest
     container_name: rucio-server
+    hostname: rucio-server
     ports:
       - "9443:443"
     networks:
@@ -53,6 +56,7 @@ services:
       dockerfile: Dockerfile
     image: slidspitfire/rucio-db-master:latest
     container_name: rucio-db
+    hostname: rucio-db
     ports:
       - "5432:5432"
     environment:
@@ -65,6 +69,7 @@ services:
       dockerfile: Dockerfile
     image: slidspitfire/rucio-db-slave:latest
     container_name: rucio-db-slave
+    hostname: rucio-db-slave
     ports:
       - "54320:5432"
     networks:
