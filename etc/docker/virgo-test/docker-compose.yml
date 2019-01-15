@@ -74,8 +74,7 @@ services:
       - "54320:5432"
     networks:
       rucionetwork:
-        aliases:
-          - rucio-db-slave
+        ipv4_address: 172.24.0.7
     environment:
       - POSTGRES_PASSWORD="pippo123"
 
