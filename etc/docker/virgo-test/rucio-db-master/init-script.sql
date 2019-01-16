@@ -1,5 +1,4 @@
 CREATE ROLE rucioreplicant WITH REPLICATION LOGIN PASSWORD 'rucio777';
-GRANT ALL PRIVILEGES ON DATABASE rucio TO rucioreplicant;
+GRANT ALL PRIVILEGES ON DATABASE postgres TO rucioreplicant;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO rucioreplicant;
-CREATE PUBLICATION rucio_publication;
-ALTER PUBLICATION rucio_publication ADD TABLE widgets;
+CREATE PUBLICATION rucio_publication FOR ALL TABLES;
