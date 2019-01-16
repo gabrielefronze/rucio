@@ -186,8 +186,11 @@ RUN ln -s usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-COPY postgresql.conf /etc/rucio_postgresql.conf
-COPY pg_hba.conf /etc/rucio_pg_hba.conf
-CMD ["postgres","-c","config_file=/etc/rucio_postgresql.conf","-c","hba_file=/etc/rucio_pg_hba.conf"]
+COPY postgresql.conf /etc/rucio_config/rucio_postgresql.conf
+COPY pg_hba.conf /etc/rucio_config/rucio_pg_hba.conf
+COPY create-rucio-database.sql /etc/rucio_config/init_scripts/create-rucio-database.sql
+COPY create-publication.sql /etc/rucio_config/init_scripts/create-publication.sql
+
+CMD ["postgres","-c","config_file=/etc/rucio_config/rucio_postgresql.conf","-c","hba_file=/etc/rucio_config/rucio_pg_hba.conf"]
 
 EXPOSE 5432

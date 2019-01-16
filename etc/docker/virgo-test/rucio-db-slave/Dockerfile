@@ -185,6 +185,9 @@ RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
+COPY create-rucio-database.sql /etc/rucio_config/init_scripts/create-rucio-database.sql
+COPY create-subscription.sql /etc/rucio_config/init_scripts/create-subscription.sql
+
 CMD ["postgres"]
 
 EXPOSE 5432
