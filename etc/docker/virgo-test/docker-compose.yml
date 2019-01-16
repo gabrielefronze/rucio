@@ -65,8 +65,8 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_USER="postgres"
-      - POSTGRES_PASSWORD="pippo123"
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pippo123
     networks:
       rucionetwork:
         ipv4_address: 172.24.0.7
@@ -90,8 +90,8 @@ services:
       - "rucio-db:172.24.0.7"
       - "rucio-server:172.24.0.3"
     environment:
-      - POSTGRES_USER="postgres"
-      - POSTGRES_PASSWORD="pippo123"
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pippo123
 
 networks:
   rucionetwork:
