@@ -47,8 +47,11 @@ services:
     hostname: rucio-server
     ports:
       - "9443:443"
-    networks:
-      - rucionetwork
+        networks:
+      rucionetwork:
+        ipv4_address: 172.24.0.3
+    extra_hosts:
+      - "rucio-db:172.24.0.7"
     depends_on:
       - "rucio-db"
     command: ["httpd", "-D", "FOREGROUND"]
@@ -69,6 +72,7 @@ services:
         ipv4_address: 172.24.0.7
     extra_hosts:
       - "rucio-db-slave:172.24.0.8"
+      - "rucio-server:172.24.0.3"
 
   rucio-db-slave:
     build:
@@ -84,6 +88,7 @@ services:
         ipv4_address: 172.24.0.8
     extra_hosts:
       - "rucio-db:172.24.0.7"
+      - "rucio-server:172.24.0.3"
     environment:
       - POSTGRES_PASSWORD="pippo123"
 
