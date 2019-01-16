@@ -191,6 +191,7 @@ COPY pg_hba.conf /etc/rucio_config/rucio_pg_hba.conf
 COPY create-rucio-database.sql /etc/rucio_config/init_scripts/create-rucio-database.sql
 COPY create-publication.sql /etc/rucio_config/init_scripts/create-publication.sql
 COPY turnkey.sh /etc/rucio_config/init_scripts/turnkey.sh
+RUN chmod +x /etc/rucio_config/init_scripts/turnkey.sh
 
 CMD ["postgres","-c","config_file=/etc/rucio_config/rucio_postgresql.conf","-c","hba_file=/etc/rucio_config/rucio_pg_hba.conf"]
 

@@ -188,6 +188,7 @@ ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 COPY create-rucio-database.sql /etc/rucio_config/init_scripts/create-rucio-database.sql
 COPY create-subscription.sql /etc/rucio_config/init_scripts/create-subscription.sql
 COPY turnkey.sh /etc/rucio_config/init_scripts/turnkey.sh
+RUN chmod +x /etc/rucio_config/init_scripts/turnkey.sh
 
 CMD ["postgres"]
 
