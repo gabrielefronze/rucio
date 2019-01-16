@@ -49,6 +49,7 @@ RUN chmod 400 /etc/grid-security/hostkey.pem
 
 ADD setup_demo.sh /
 ADD setup_data.py /
+ADD setup_database.py /
 ADD wait-for-it.sh /
 
 WORKDIR /opt/rucio
