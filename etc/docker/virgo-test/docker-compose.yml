@@ -48,8 +48,7 @@ services:
     ports:
       - "9443:443"
     networks:
-      rucionetwork:
-        ipv4_address: 172.24.0.3
+      - rucionetwork
     extra_hosts:
       - "rucio-db:172.24.0.7"
     depends_on:
@@ -66,6 +65,7 @@ services:
     ports:
       - "5432:5432"
     environment:
+      - POSTGRES_USER="postgres"
       - POSTGRES_PASSWORD="pippo123"
     networks:
       rucionetwork:
@@ -90,6 +90,7 @@ services:
       - "rucio-db:172.24.0.7"
       - "rucio-server:172.24.0.3"
     environment:
+      - POSTGRES_USER="postgres"
       - POSTGRES_PASSWORD="pippo123"
 
 networks:
