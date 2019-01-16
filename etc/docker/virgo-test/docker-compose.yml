@@ -47,7 +47,7 @@ services:
     hostname: rucio-server
     ports:
       - "9443:443"
-        networks:
+    networks:
       rucionetwork:
         ipv4_address: 172.24.0.3
     extra_hosts:
