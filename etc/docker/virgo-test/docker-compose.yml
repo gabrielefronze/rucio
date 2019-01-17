@@ -55,6 +55,22 @@ services:
       - "rucio-db"
     command: ["httpd", "-D", "FOREGROUND"]
 
+  rucio-db-pool:
+    build:
+      context: ./rucio-pgpool
+      dockerfile: Dockerfile
+    image: slidspitfire/rucio-db-pool:latest
+    container_name: rucio-db-pool
+    hostname: rucio-db-pool
+    ports:
+      - "5432:5433"
+    networks:
+      - rucionetwork
+    extra_hosts:
+      - "rucio-db:172.24.0.7"
+      - "rucio-db-slave:172.24.0.8"
+      - "rucio-server:172.24.0.3"
+
   rucio-db:
     build:
       context: ./rucio-db-master
