@@ -76,6 +76,7 @@ services:
       - PCP_USER_PASSWORD=rucio777
       - PGPOOL_PORT=5432
       - PGPOOL_BACKENDS=1:rucio-db:5432;
+    tty: true
 
   rucio-db:
     build:
