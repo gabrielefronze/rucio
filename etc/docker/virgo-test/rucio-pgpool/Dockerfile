@@ -7,7 +7,7 @@ MAINTAINER luka <lzalewsk@gmail.com>
 RUN apt-get update && apt-get install -y wget
 RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get update && apt-get install -f postgresql-client-10 pgpool2=4.0.2-1.pgdg14.04+1
+RUN apt-get update && apt-get install -f postgresql-client-10 pgpool2=4.0.2-1ubuntu1
 
 # Post Install Configuration.
 ADD conf/pcp.conf /etc/pgpool2/pcp.conf
