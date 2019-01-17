@@ -45,10 +45,10 @@ if __name__ == "__main__":
 	# Load the configuration into a dictionary.
 	configuration = pgpool_get_configuration()
 	# Write PCP user credentials.
-	pcp = templates.get_template('/pcp.conf.template') \
+	pcp = templates.get_template('pcp.conf.template') \
 								 .render(configuration)
 	write(pcp, '/etc/pgpool2/pcp.conf')
-	pgpool = templates.get_template('/pgpool.conf.template') \
+	pgpool = templates.get_template('pgpool.conf.template') \
 										.render(configuration)
 	write(pgpool, '/etc/pgpool2/pgpool.conf')
 	# Start the container.

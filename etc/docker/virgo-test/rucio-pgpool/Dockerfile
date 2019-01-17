@@ -11,17 +11,10 @@ RUN apt-get update && apt-get -f install -y postgresql-client-10 libpgpool0=4.0.
 RUN pip install Jinja2
 
 # Post Install Configuration.
-ADD conf/pcp.conf /etc/pgpool2/pcp.conf
-ADD conf/pcp.conf.template /pcp.conf.template
-ADD conf/pgpool.conf /etc/pgpool2/pgpool.conf
-ADD conf/pgpool.conf.template /pgpool.conf.template
-ADD conf/pool_hba.conf /etc/pgpool2/pool_hba.conf
-ADD conf/pool_passwd.conf /etc/pgpool2/pool_passwd
-RUN chown 105:110 /etc/pgpool2/pool_passwd
-
-# Start script
-ADD bin/start-pgpool2.py /start-pgpool2.py
-RUN chmod 0755 /start-pgpool2.py
+ADD bin/start-pgpool2.py /usr/bin/start-pgpool2.py
+RUN chmod +x /usr/bin/start-pgpool2.py
+ADD conf/pcp.conf.template /usr/share/pgpool2/pcp.conf.template
+ADD conf/pgpool.conf.template /usr/share/pgpool2/pgpool.conf.template
 
 # Start the container.
-CMD /start-pgpool2.py
+CMD start-pgpool2.py
