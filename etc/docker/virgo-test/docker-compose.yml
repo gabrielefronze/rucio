@@ -72,7 +72,7 @@ services:
       - "rucio-server:172.24.0.3"
     environment:
       - PCP_PORT=9898
-      - PCP_USER=postgres
+      - PCP_USER=rucio
       - PCP_USER_PASSWORD=rucio777
       - PGPOOL_PORT=5432
       - PGPOOL_BACKENDS=1:rucio-db:5432;

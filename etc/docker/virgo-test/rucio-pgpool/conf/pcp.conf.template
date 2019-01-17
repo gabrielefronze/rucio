@@ -26,5 +26,4 @@
 # be ignored. Again, no spaces or tabs allowed before '#'.
 
 # USERID:MD5PASSWD
-# passwd=rucio777
-rucio:5cd74c5f4b11c2b2775f290d61a81ed6
+{{ pcp_user }}:{{ pcp_user_password }}
