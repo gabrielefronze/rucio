@@ -1,6 +1,6 @@
 # Pgpool2.
 
-FROM debian:jessie
+FROM debian:buster-slim
 MAINTAINER luka <lzalewsk@gmail.com>
 
 # Install Dependencies.
