@@ -13,7 +13,7 @@ RUN apt-get update && apt-get -f install -y postgresql-client-10 libpgpool0=4.0.
 ADD conf/pcp.conf /etc/pgpool2/pcp.conf
 ADD conf/pgpool.conf /etc/pgpool2/pgpool.conf
 ADD conf/pool_hba.conf /etc/pgpool2/pool_hba.conf
-ADD conf/pool_passwd /etc/pgpool2/pool_passwd
+ADD conf/pool_passwd.conf /etc/pgpool2/pool_passwd
 RUN chown 105:110 /etc/pgpool2/pool_passwd
 
 # Start script
