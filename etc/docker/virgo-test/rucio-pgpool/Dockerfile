@@ -7,7 +7,8 @@ MAINTAINER luka <lzalewsk@gmail.com>
 RUN apt-get update && apt-get -f install -y wget gnupg2
 RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main' >> /etc/apt/sources.list.d/pgdg.list
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get update && apt-get -f install -y postgresql-client-10 libpgpool0=4.0.2-1 pgpool2=4.0.2-1 jinja2
+RUN apt-get update && apt-get -f install -y postgresql-client-10 libpgpool0=4.0.2-1 pgpool2=4.0.2-1
+RUN easy_install Jinja2
 
 # Post Install Configuration.
 ADD conf/pcp.conf /etc/pgpool2/pcp.conf
