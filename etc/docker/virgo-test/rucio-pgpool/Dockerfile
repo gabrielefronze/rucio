@@ -18,7 +18,7 @@ ADD conf/pool_passwd /etc/pgpool2/pool_passwd
 RUN chown 105:110 /etc/pgpool2/pool_passwd
 
 # Start script
-ADD start-pgpool2.sh /start-pgpool2.sh
+ADD init/start-pgpool2.sh /start-pgpool2.sh
 RUN chmod 0755 /start-pgpool2.sh
 
 # Start the container.
