@@ -25,6 +25,7 @@ RUN mkdir -p /etc/pgpool2/init_scripts
 COPY create-rucio-database.sql /etc/pgpool2/init_scripts/create-rucio-database.sql
 COPY create-publication.sql /etc/pgpool2/init_scripts/create-publication.sql
 COPY turnkey.sh /etc/pgpool2/init_scripts/turnkey.sh
+RUN chmod +x /etc/pgpool2/init_scripts/turnkey.sh
 
 # Start the container.
 CMD /start-pgpool2.sh
