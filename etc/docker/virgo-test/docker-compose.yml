@@ -18,7 +18,7 @@ services:
       hostname: rucio-client
       depends_on:
         - "rucio-server"
-        - "rucio-db"
+        - "rucio-db-poll"
       networks:
       - rucionetwork
       tty: true
@@ -33,7 +33,7 @@ services:
     ports:
       - "443:443"
     depends_on:
-      - "rucio-db"
+      - "rucio-db-pool"
     networks:
       - rucionetwork
     command: ["httpd", "-D", "FOREGROUND"]
@@ -50,9 +50,9 @@ services:
     networks:
       - rucionetwork
     extra_hosts:
-      - "rucio-db:172.24.0.7"
+      - "rucio-db-pool:172.24.0.17"
     depends_on:
-      - "rucio-db"
+      - "rucio-db-pool"
     command: ["httpd", "-D", "FOREGROUND"]
 
   rucio-db-pool:
@@ -71,6 +71,8 @@ services:
       - "rucio-db:172.24.0.7"
       - "rucio-db-slave:172.24.0.8"
       - "rucio-server:172.24.0.3"
+    depends_on:
+      - "rucio-db"
     # tty: true
 
   rucio-db:
