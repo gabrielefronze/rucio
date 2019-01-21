@@ -21,10 +21,10 @@ RUN chown 105:110 /etc/pgpool2/pool_passwd
 ADD init/start-pgpool2.sh /start-pgpool2.sh
 RUN chmod 0755 /start-pgpool2.sh
 
-RUN mkdir -p /etc/pgool2/init_scripts
-COPY create-rucio-database.sql /etc/pgool2/init_scripts/create-rucio-database.sql
-COPY create-publication.sql /etc/pgool2/init_scripts/create-publication.sql
-COPY turnkey.sh /etc/pgool2/init_scripts/turnkey.sh
+RUN mkdir -p /etc/pgpool2/init_scripts
+COPY create-rucio-database.sql /etc/pgpool2/init_scripts/create-rucio-database.sql
+COPY create-publication.sql /etc/pgpool2/init_scripts/create-publication.sql
+COPY turnkey.sh /etc/pgpool2/init_scripts/turnkey.sh
 
 # Start the container.
 CMD /start-pgpool2.sh
