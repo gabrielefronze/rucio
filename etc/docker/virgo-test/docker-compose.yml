@@ -18,7 +18,7 @@ services:
       hostname: rucio-client
       depends_on:
         - "rucio-server"
-        - "rucio-db-poll"
+        - "rucio-db-pool"
       networks:
       - rucionetwork
       tty: true
