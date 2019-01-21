@@ -99,8 +99,8 @@ services:
       context: ./rucio-db-master
       dockerfile: Dockerfile
     image: slidspitfire/rucio-db-master:latest
-    container_name: rucio-db
-    hostname: rucio-db
+    container_name: rucio-db-streamer
+    hostname: rucio-db-streamer
     # ports:
     #   - "5432:5432"
     environment:
