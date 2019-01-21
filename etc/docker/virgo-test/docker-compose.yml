@@ -65,12 +65,13 @@ services:
     ports:
       - "5432:5433"
     networks:
-      - rucionetwork
+      rucionetwork:
+        ipv4_address: 172.24.0.17
     extra_hosts:
       - "rucio-db:172.24.0.7"
       - "rucio-db-slave:172.24.0.8"
       - "rucio-server:172.24.0.3"
-    tty: true
+    # tty: true
 
   rucio-db:
     build:
@@ -90,6 +91,7 @@ services:
     extra_hosts:
       - "rucio-db-slave:172.24.0.8"
       - "rucio-server:172.24.0.3"
+      - "rucio-pool:172.24.0.17"
 
   rucio-db-slave:
     build:
