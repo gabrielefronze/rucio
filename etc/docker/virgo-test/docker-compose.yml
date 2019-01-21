@@ -68,11 +68,12 @@ services:
       rucionetwork:
         ipv4_address: 172.24.0.17
     extra_hosts:
-      - "rucio-db:172.24.0.7"
-      - "rucio-db-slave:172.24.0.8"
+      - "rucio-db:172.24.0.9"
+      - "rucio-db-streamer:172.24.0.7"
       - "rucio-server:172.24.0.3"
     depends_on:
       - "rucio-db"
+      - "rucio-db-streamer"
     # tty: true
 
   rucio-db:
@@ -89,10 +90,27 @@ services:
       - POSTGRES_PASSWORD=pippo123
     networks:
       rucionetwork:
+        ipv4_address: 172.24.0.9
+    extra_hosts:
+      - "rucio-pool:172.24.0.17"
+
+  rucio-db-streamer:
+    build:
+      context: ./rucio-db-master
+      dockerfile: Dockerfile
+    image: slidspitfire/rucio-db-master:latest
+    container_name: rucio-db
+    hostname: rucio-db
+    # ports:
+    #   - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pippo123
+    networks:
+      rucionetwork:
         ipv4_address: 172.24.0.7
     extra_hosts:
       - "rucio-db-slave:172.24.0.8"
-      - "rucio-server:172.24.0.3"
       - "rucio-pool:172.24.0.17"
 
   rucio-db-slave:
@@ -108,8 +126,7 @@ services:
       rucionetwork:
         ipv4_address: 172.24.0.8
     extra_hosts:
-      - "rucio-db:172.24.0.7"
-      - "rucio-server:172.24.0.3"
+      - "rucio-db-streamer:172.24.0.7"
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=pippo123
