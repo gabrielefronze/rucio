@@ -422,16 +422,16 @@ def upload(rse_settings, lfns, source_dir=None, force_pfn=None, force_scheme=Non
 
                 valid = None
                 try:  # Get metadata of file to verify if upload was successful
-                    try:
-                        stats = protocol.stat('%s.rucio.upload' % pfn)
-                        if ('adler32' in stats) and ('adler32' in lfn):
-                            valid = stats['adler32'] == lfn['adler32']
-                        if (valid is None) and ('filesize' in stats) and ('filesize' in lfn):
-                            valid = stats['filesize'] == lfn['filesize']
-                    except exception.RSEChecksumUnavailable as e:
-                        if rse_settings['verify_checksum'] is False:
-                            valid = True
-                        else:
+                    if rse_settings['verify_checksum'] is False: # Avoid any computing if checksum has not to be computed
+                        valid = True
+                    else:
+                        try:
+                            stats = protocol.stat('%s.rucio.upload' % pfn)
+                            if ('adler32' in stats) and ('adler32' in lfn):
+                                valid = stats['adler32'] == lfn['adler32']
+                            if (valid is None) and ('filesize' in stats) and ('filesize' in lfn):
+                                valid = stats['filesize'] == lfn['filesize']
+                        except exception.RSEChecksumUnavailable as e:
                             raise exception.RucioException('Checksum not validated')
                 except Exception as e:
                     gs = False
