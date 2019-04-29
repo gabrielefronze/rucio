@@ -170,6 +170,11 @@ def clean_headers(msg):
         msg = str(msg).replace(c, ' ')
     return msg
 
+def is_chksum_valid(chksum_name):
+    return (chksum_name == "md5") or (chksum_name == "adler32")
+
+def get_chksum_attr_key(chksum_name):
+    return "is_"+chksum_name+"_supported"
 
 def adler32(file):
     """

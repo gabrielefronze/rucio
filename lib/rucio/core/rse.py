@@ -24,6 +24,7 @@
 # - Frank Berghaus <frank.berghaus@cern.ch>, 2018
 # - Dimitrios Christidis <dimitrios.christidis@cern.ch>, 2018
 # - Hannes Hansen <hannes.jakob.hansen@cern.ch>, 2018
+# - Gabriele Fronze' <gfronze@cern.ch>, 2019
 #
 # PY3K COMPATIBLE
 
@@ -51,6 +52,7 @@ from rucio.core.rse_counter import add_counter, get_counter
 
 from rucio.common import exception, utils
 from rucio.common.config import get_lfn2pfn_algorithm_default
+from rucio.common.utils import is_chksum_valid, get_chksum_attr_key
 from rucio.db.sqla import models
 from rucio.db.sqla.constants import RSEType
 from rucio.db.sqla.session import read_session, transactional_session, stream_session
@@ -65,7 +67,7 @@ REGION = make_region().configure('dogpile.cache.memcached',
 @transactional_session
 def add_rse(rse, deterministic=True, volatile=False, city=None, region_code=None, country_name=None, continent=None, time_zone=None,
             ISP=None, staging_area=False, rse_type=RSEType.DISK, longitude=None, latitude=None, ASN=None, availability=7,
-            session=None):
+            session=None, supported_chksums=None):
     """
     Add a rse with the given location name.
 
@@ -85,6 +87,7 @@ def add_rse(rse, deterministic=True, volatile=False, city=None, region_code=None
     :param ASN: Access service network.
     :param availability: Availability.
     :param session: The database session in use.
+    :param supported_chksums: The checksums supported by the RSE.
     """
     if isinstance(rse_type, str) or isinstance(rse_type, unicode):
         rse_type = RSEType.from_string(str(rse_type))
@@ -102,6 +105,11 @@ def add_rse(rse, deterministic=True, volatile=False, city=None, region_code=None
 
     # Add rse name as a RSE-Tag
     add_rse_attribute(rse=rse, key=rse, value=True, session=session)
+
+    # Add supported checksums in rse_attr_map if specified
+    if supported_chksums:
+        for chksum in supported_chksums:
+            add_rse_checksum(rse=rse, chksum_name=chksum, session=session)
 
     # Add counter to monitor the space usage
     add_counter(rse_id=new_rse.id, session=session)
@@ -344,6 +352,21 @@ def add_rse_attribute(rse, key, value, session=None):
         raise exception.Duplicate("RSE attribute '%(key)s-%(value)s\' for RSE '%(rse)s' already exists!" % locals())
     return True
 
+@transactional_session
+def add_rse_checksum(rse, chksum_name, session=None):
+    """ Adds a RSE attribute.
+
+    :param rse: the rse name.
+    :param chksum_name: the checksum name.
+    :param session: The database session in use.
+
+    :returns: True is successful
+    """
+    if is_checksum_valid(chksum_name):
+        return add_rse_attribute(rse=rse, key=get_chksum_attr_key(chksum_name), value=True, session=session)
+    else:
+        return False
+
 
 @transactional_session
 def del_rse_attribute(rse, key, session=None):
@@ -366,6 +389,18 @@ def del_rse_attribute(rse, key, session=None):
     rse_attr.delete(session=session)
     return True
 
+@transactional_session
+def del_rse_checksum(rse, chksum_name, session=None):
+    """
+    Delete a RSE attribute.
+
+    :param rse: the name of the rse.
+    :param chksum_name: the checksum name.
+    :param session: The database session in use.
+
+    :return: True if RSE attribute was deleted.
+    """
+    return del_rse_attribute(rse=rse, key=get_chksum_attr_key(chksum_name), session=session)
 
 @read_session
 def list_rse_attributes(rse, rse_id=None, session=None):

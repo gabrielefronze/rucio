@@ -13,6 +13,7 @@
   - Martin Barisits, <martin.barisits@cern.ch>, 2013
   - Thomas Beermann, <thomas.beermann@cern.ch>, 2014
   - Hannes Hansen, <hannes.jakob.hansen@cern.ch>, 2018
+  - Gabriele Fronze' <gfronze@cern.ch>, 2019
 
   PY3K COMPATIBLE
 '''
@@ -20,6 +21,7 @@
 from rucio.api import permission
 from rucio.common import exception
 from rucio.common.schema import validate_schema
+from rucio.common.utils import is_chksum_valid, get_chksum_attr_key
 from rucio.core import distance as distance_module
 from rucio.core import rse as rse_module
 from rucio.core.rse_expression_parser import parse_expression
@@ -28,7 +30,7 @@ from rucio.core.rse_expression_parser import parse_expression
 def add_rse(rse, issuer, deterministic=True, volatile=False, city=None, region_code=None,
             country_name=None, continent=None, time_zone=None, ISP=None,
             staging_area=False, rse_type=None, latitude=None, longitude=None, ASN=None,
-            availability=None):
+            availability=None, supported_chksums=None):
     """
     Creates a new Rucio Storage Element(RSE).
 
@@ -48,6 +50,7 @@ def add_rse(rse, issuer, deterministic=True, volatile=False, city=None, region_c
     :param longitude: Longitude coordinate of RSE.
     :param ASN: Access service network.
     :param availability: Availability.
+    :param supported_chksums: The checksums supported by the RSE.
     """
     validate_schema(name='rse', obj=rse)
     kwargs = {'rse': rse}
@@ -57,7 +60,7 @@ def add_rse(rse, issuer, deterministic=True, volatile=False, city=None, region_c
     return rse_module.add_rse(rse, deterministic=deterministic, volatile=volatile, city=city,
                               region_code=region_code, country_name=country_name, staging_area=staging_area,
                               continent=continent, time_zone=time_zone, ISP=ISP, rse_type=rse_type, latitude=latitude,
-                              longitude=longitude, ASN=ASN, availability=availability)
+                              longitude=longitude, ASN=ASN, availability=availability, supported_chksums=supported_chksums)
 
 
 def get_rse(rse):
@@ -117,6 +120,18 @@ def del_rse_attribute(rse, key, issuer):
 
     return rse_module.del_rse_attribute(rse=rse, key=key)
 
+def del_rse_checksum(rse, chksum_name, issuer):
+    """
+    Delete a RSE attribute.
+
+    :param rse: the name of the rse_module.
+    :param chksum_name: the checksum name.
+
+    :return: True if RSE attribute was deleted successfully, False otherwise.
+    """
+
+    return del_rse_attribute(rse=rse, key=get_chksum_attr_key(chksum_name), issuer=issuer)
+
 
 def add_rse_attribute(rse, key, value, issuer):
     """ Adds a RSE attribute.
@@ -134,6 +149,20 @@ def add_rse_attribute(rse, key, value, issuer):
         raise exception.AccessDenied('Account %s can not add RSE attributes' % (issuer))
 
     return rse_module.add_rse_attribute(rse=rse, key=key, value=value)
+
+def add_rse_checksum(rse, chksum_name, issuer):
+    """ Adds a RSE attribute.
+
+    :param rse: the rse name.
+    :param key: the key name.
+    :param issuer: The issuer account.
+
+    returns: True if successful, False otherwise.
+    """
+    if is_chksum_valid(chksum_name):
+        return add_rse_attribute(rse=rse, key=get_chksum_attr_key(chksum_name), value=True, issuer=issuer)
+    else:
+        return False
 
 
 def list_rse_attributes(rse):
