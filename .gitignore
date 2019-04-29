@@ -62,4 +62,4 @@ pylint.out
 # Conveyor test files
 tools/test.file.1G
 
-.vscode/settings.json
+.vscode
