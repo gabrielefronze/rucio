@@ -377,6 +377,7 @@ def add_rse_attribute(rse_id, key, value, session=None):
         raise exception.Duplicate("RSE attribute '%(key)s-%(value)s\' for RSE '%(rse)s' already exists!" % locals())
     return True
 
+
 @transactional_session
 def add_rse_checksum(rse, checksum_name, session=None):
     """ Adds a RSE attribute.
@@ -413,6 +414,7 @@ def del_rse_attribute(rse_id, key, session=None):
     rse_attr.delete(session=session)
     return True
 
+
 @transactional_session
 def del_rse_checksum(rse, checksum_name, session=None):
     """
@@ -425,6 +427,7 @@ def del_rse_checksum(rse, checksum_name, session=None):
     :return: True if RSE attribute was deleted.
     """
     return del_rse_attribute(rse=rse, key=get_checksum_attr_key(checksum_name), session=session)
+
 
 @read_session
 def list_rse_attributes(rse_id, session=None):
@@ -584,6 +587,7 @@ def get_rse_supported_checksums(rse_id=None, session=None):
     else:
         return list(filter(lambda x: (get_rse_attribute(get_checksum_attr_key(x), rse_id=rse_id, value=True, session=session) is not None), GLOBALLY_SUPPORTED_CHECKSUMS))
 
+
 @read_session
 def get_rse_is_checksum_supported(checksum_name, rse_id=None, session=None):
     """
@@ -596,9 +600,10 @@ def get_rse_is_checksum_supported(checksum_name, rse_id=None, session=None):
     :returns: True if required checksum is supported, False otherwise.
     """
     if is_checksum_valid(checksum_name):
-        return (checksum_name in  get_rse_supported_checksums(rse_id=rse_id, session=session))
+        return (checksum_name in get_rse_supported_checksums(rse_id=rse_id, session=session))
     else:
         return False
+
 
 @transactional_session
 def set_rse_usage(rse_id, source, used, free, session=None):
