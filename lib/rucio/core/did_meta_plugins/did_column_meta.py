@@ -40,7 +40,6 @@ from sqlalchemy.exc import CompileError, InvalidRequestError
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import true
-
 from rucio.common import exception
 from rucio.common.utils import str_to_date
 from rucio.core import account_counter, rse_counter
@@ -48,8 +47,6 @@ from rucio.core.did_meta_plugins.did_meta_plugin_interface import DidMetaPlugin
 from rucio.db.sqla import models
 from rucio.db.sqla.constants import DIDType
 from rucio.db.sqla.session import stream_session, read_session, transactional_session
-
-from rucio.core.did_meta_plugins.did_meta_plugin_interface import DidMetaPlugin
 from rucio.core.did_meta_plugins.inequality_engine import inequality_engine
 
 HARDCODED_KEYS = [
