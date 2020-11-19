@@ -61,7 +61,7 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
     :param recursive: Recursively list DIDs content.
     :param vo: The VO to act on.
     """
-    if filters is not None:
+    if filterstr is None:
         validate_schema(name='did_filters', obj=filters)
 
         scope = InternalScope(scope, vo=vo)
@@ -77,7 +77,7 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
         for d in result:
             yield api_update_return_dict(d)
 
-    elif filterstr is not None:
+    else:
         scope = InternalScope(scope, vo=vo)
         splitted = filterstr.split()
 

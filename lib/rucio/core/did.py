@@ -1415,7 +1415,7 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
     elif type.lower() == 'file':
         query = query.filter(models.DataIdentifier.did_type == DIDType.FILE)
 
-    if filters is not None:
+    if filterstr is None:
         for (k, v) in filters.items():
 
             if k not in ['created_before', 'created_after', 'length.gt', 'length.lt', 'length.lte', 'length.gte', 'length'] \
@@ -1487,7 +1487,7 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
             for scope, name, did_type, bytes, length in query.yield_per(5):
                 yield name
 
-    elif filterstr is not None:
+    else:
         queries = inequality_engine(filterstr).createQueries(query_master=query)
 
         for query in queries:
