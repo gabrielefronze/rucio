@@ -41,6 +41,7 @@
 # - Jason Nielsen <jnielsen@ucsc.edu>, 2020
 # - Aristeidis Fkiaras <aristeidis.fkiaras@cern.ch>, 2020
 # - Patrick Austin <patrick.austin@stfc.ac.uk>, 2020
+# - Gabriele Gaetano Fronze' <gabriele.fronze@to.infn.it>, 2020
 
 from __future__ import print_function
 
