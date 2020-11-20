@@ -66,10 +66,11 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
 
         scope = InternalScope(scope, vo=vo)
 
-        if 'account' in filters:
-            filters['account'] = InternalAccount(filters['account'], vo=vo)
-        if 'scope' in filters:
-            filters['scope'] = InternalScope(filters['scope'], vo=vo)
+        if filters:
+            if 'account' in filters:
+                filters['account'] = InternalAccount(filters['account'], vo=vo)
+            if 'scope' in filters:
+                filters['scope'] = InternalScope(filters['scope'], vo=vo)
 
         result = did.list_dids(scope=scope, filters=filters, type=type, ignore_case=ignore_case,
                                limit=limit, offset=offset, long=long, recursive=recursive, filterstr=None)
