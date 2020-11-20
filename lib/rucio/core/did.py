@@ -1470,6 +1470,8 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
             collections_content = []
             parent_scope = scope
 
+            from rucio.core.did import list_content
+
             for scope, name, did_type, bytes, length in query.yield_per(100):
                 if (did_type == DIDType.CONTAINER or did_type == DIDType.DATASET):
                     collections_content += [did for did in list_content(scope=scope, name=name)]
