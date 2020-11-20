@@ -26,7 +26,7 @@ from rucio.common.exception import KeyNotFound
 
 DEFAULT_MODEL = DataIdentifier.__name__
 
-OP = {' == ': ['==', ' = ', ' eq ', ' -eq '], ' > ': [' > ', ' gt ', ' -gt '], ' >= ': ['>=', ' ge ', ' -ge '], ' < ': [' < ', ' lt ', ' -lt '], ' <= ': ['<=', ' le ', ' -le '], ' and ': ['&&', ' & ', ' and '], ' or ': ['||', ' | ', ' or ']}
+OP = {' == ': ['==', ' = ', ' eq ', ' -eq '], ' >= ': ['>=', ' ge ', ' -ge '], ' <= ': ['<=', ' le ', ' -le '], , ' < ': [' < ', ' lt ', ' -lt '], ' > ': [' > ', ' gt ', ' -gt '], ' and ': ['&&', ' & ', ' and '], ' or ': ['||', ' | ', ' or ']}
 VALID_OP = sum(OP.values(), [])
 VALID_OP_NOSPACE = [op.replace(' ', '') for op in VALID_OP]
 STD_OP = list(OP.keys())
