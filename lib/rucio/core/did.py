@@ -1416,51 +1416,52 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
         query = query.filter(models.DataIdentifier.did_type == DIDType.FILE)
 
     if filterstr is None:
-        for (k, v) in filters.items():
+        if filters:
+            for (k, v) in filters.items():
 
-            if k not in ['created_before', 'created_after', 'length.gt', 'length.lt', 'length.lte', 'length.gte', 'length'] \
-               and not hasattr(models.DataIdentifier, k):
-                raise exception.KeyNotFound(k)
+                if k not in ['created_before', 'created_after', 'length.gt', 'length.lt', 'length.lte', 'length.gte', 'length'] \
+                and not hasattr(models.DataIdentifier, k):
+                    raise exception.KeyNotFound(k)
 
-            if isinstance(v, string_types) and ('*' in v or '%' in v):
-                if v in ('*', '%', u'*', u'%'):
-                    continue
-                if session.bind.dialect.name == 'postgresql':
-                    query = query.filter(getattr(models.DataIdentifier, k).
-                                         like(v.replace('*', '%').replace('_', '\_'),  # NOQA: W605
-                                         escape='\\'))
+                if isinstance(v, string_types) and ('*' in v or '%' in v):
+                    if v in ('*', '%', u'*', u'%'):
+                        continue
+                    if session.bind.dialect.name == 'postgresql':
+                        query = query.filter(getattr(models.DataIdentifier, k).
+                                            like(v.replace('*', '%').replace('_', '\_'),  # NOQA: W605
+                                            escape='\\'))
+                    else:
+                        query = query.filter(getattr(models.DataIdentifier, k).
+                                            like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
+                elif k == 'created_before':
+                    created_before = str_to_date(v)
+                    query = query.filter(models.DataIdentifier.created_at <= created_before)
+                elif k == 'created_after':
+                    created_after = str_to_date(v)
+                    query = query.filter(models.DataIdentifier.created_at >= created_after)
+                elif k == 'guid':
+                    query = query.filter_by(guid=v).\
+                        with_hint(models.ReplicaLock, "INDEX(DIDS_GUIDS_IDX)", 'oracle')
+                elif k == 'length.gt':
+                    query = query.filter(models.DataIdentifier.length > v)
+                elif k == 'length.lt':
+                    query = query.filter(models.DataIdentifier.length < v)
+                elif k == 'length.gte':
+                    query = query.filter(models.DataIdentifier.length >= v)
+                elif k == 'length.lte':
+                    query = query.filter(models.DataIdentifier.length <= v)
+                elif k == 'length':
+                    query = query.filter(models.DataIdentifier.length == v)
                 else:
-                    query = query.filter(getattr(models.DataIdentifier, k).
-                                         like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
-            elif k == 'created_before':
-                created_before = str_to_date(v)
-                query = query.filter(models.DataIdentifier.created_at <= created_before)
-            elif k == 'created_after':
-                created_after = str_to_date(v)
-                query = query.filter(models.DataIdentifier.created_at >= created_after)
-            elif k == 'guid':
-                query = query.filter_by(guid=v).\
-                    with_hint(models.ReplicaLock, "INDEX(DIDS_GUIDS_IDX)", 'oracle')
-            elif k == 'length.gt':
-                query = query.filter(models.DataIdentifier.length > v)
-            elif k == 'length.lt':
-                query = query.filter(models.DataIdentifier.length < v)
-            elif k == 'length.gte':
-                query = query.filter(models.DataIdentifier.length >= v)
-            elif k == 'length.lte':
-                query = query.filter(models.DataIdentifier.length <= v)
-            elif k == 'length':
-                query = query.filter(models.DataIdentifier.length == v)
-            else:
-                query = query.filter(getattr(models.DataIdentifier, k) == v)
+                    query = query.filter(getattr(models.DataIdentifier, k) == v)
 
-        if 'name' in filters:
-            if '*' in filters['name']:
-                query = query.\
-                    with_hint(models.DataIdentifier, "NO_INDEX(dids(SCOPE,NAME))", 'oracle')
-            else:
-                query = query.\
-                    with_hint(models.DataIdentifier, "INDEX(DIDS DIDS_PK)", 'oracle')
+            if 'name' in filters:
+                if '*' in filters['name']:
+                    query = query.\
+                        with_hint(models.DataIdentifier, "NO_INDEX(dids(SCOPE,NAME))", 'oracle')
+                else:
+                    query = query.\
+                        with_hint(models.DataIdentifier, "INDEX(DIDS DIDS_PK)", 'oracle')
 
         if limit:
             query = query.limit(limit)
