@@ -523,7 +523,7 @@ def detach(args):
 @exception_handler
 def list_dids(args):
     """
-    %(prog)s list-dids scope[:*|:name] [--filter 'key=value' | --recursive]
+    %(prog)s list-dids scope[:*|:name] [--filter 'key=value' | --filterstr 'value' | --recursive]
 
     List the data identifiers for a given scope.
     """
@@ -535,7 +535,7 @@ def list_dids(args):
     if args.filter and args.filterstr:
         raise Exception("Only one filter type supported at once.")
 
-    if args.filter:
+    if not args.filterstr:
         try:
             filters, type = parse_did_filter_from_string(args.filter)
         except InvalidType as error:
@@ -577,7 +577,7 @@ def list_dids(args):
             print(tabulate.tabulate(table, tablefmt=tablefmt, headers=['SCOPE:NAME', '[DID TYPE]']))
         return SUCCESS
 
-    elif args.filterstr:
+    else:
         filters = args.filterstr
 
         try:
