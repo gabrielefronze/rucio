@@ -25,7 +25,7 @@ from rucio.common.utils import generate_uuid
 from rucio.core.did import add_did
 from rucio.core.did_meta_plugins import set_metadata
 from rucio.db.sqla.session import read_session
-from rucio.core.did_meta_plugins.inequality_engine import DEFAULT_MODEL, OP, clear_double_spaces, translate, get_num_op, convert_ternary, expand_metadata, condition_split, flip_if_needed, inequality_engine
+from rucio.core.did_meta_plugins.inequality_engine import DEFAULT_MODEL, OP, clear_double_spaces, translate, get_num_op, convert_ternary, expand_metadata, condition_split, flip_if_needed, handle_created, HANDLE_LENGTH_LUT, handle_length, inequality_engine,
 
 
 class TestClearDoubleSpaces(unittest.TestCase):
@@ -139,6 +139,31 @@ class TestFlipIfNeeded(unittest.TestCase):
         control = ["length", "<", "87"]
         for i, w in enumerate(splitted):
             self.assertEqual(w, control[i])
+
+
+class TestRetrocomatibility(unittest.TestCase):
+
+    def test_HandleCreatedAfter(self):
+        string = "created_after=1900-01-01T00:00:00.000Z"
+        control = "created_at > "+datetime.datetime.strptime("1900-01-01T00:00:00.000Z", '%Y-%m-%dT%H:%M:%S.%fZ')
+        self.assertEqual(handle_created(string), control)
+
+        string = "created_after = 1900-01-01T00:00:00.000Z"
+        self.assertEqual(handle_created(string), control)
+
+    def test_HandleCreatedBefore(self):
+        string = "created_before=1900-01-01T00:00:00.000Z"
+        control = "created_at < "+datetime.datetime.strptime("1900-01-01T00:00:00.000Z", '%Y-%m-%dT%H:%M:%S.%fZ')
+        self.assertEqual(handle_created(string), control)
+
+        string = "created_before = 1900-01-01T00:00:00.000Z"
+        self.assertEqual(handle_created(string), control)
+
+    def test_HandleLength(self):
+        for key in HANDLE_LENGTH_LUT.keys():
+            string = key+"12345"
+            control = HANDLE_LENGTH_LUT[key]+"12345"
+            self.assertEqual(handle_length(string), control)
 
 
 class TestInequalityEngineOffline(unittest.TestCase):

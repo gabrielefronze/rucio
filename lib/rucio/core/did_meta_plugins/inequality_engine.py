@@ -20,6 +20,7 @@
 
 import sys
 import re
+import datetime
 from rucio.db.sqla.models import DataIdentifier
 from rucio.db.sqla.session import read_session
 from rucio.common.exception import KeyNotFound
@@ -149,6 +150,37 @@ def flip_if_needed(listed_condition, model=DEFAULT_MODEL):
     return listed_condition
 
 
+def handle_created(condition):
+    if "created_after" in condition or "created_before" in condition:
+        date_str = condition.replace(' ','').split('=',1)[1]
+        if "created_after" in condition:
+            return "created_at > "+datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+        elif "created_before" in condition:
+            return "created_at < "+datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+    return condition
+
+
+HANDLE_LENGTH_LUT = {
+                     "length.gte=": "length >= ",
+                     "length.gt=": "length > ",
+                     "length.lte=": "length <= ",
+                     "length.lt=": "length < ",
+                    }
+
+
+def handle_length(condition):
+    condition.replace(' ','')
+    for key in HANDLE_LENGTH_LUT.keys():
+        if key in condition:
+            condition.replace(key, HANDLE_LENGTH_LUT[key])
+            return condition
+    return condition
+
+
+def retrocompatibility(condition):
+    return handle_created(handle_length(condition))
+
+
 class inequality_engine:
     def __init__(self, input_string):
         """
@@ -163,7 +195,8 @@ class inequality_engine:
             converted = []
 
             for cond in conditions:
-                converted.extend(convert_ternary(expand_metadata(cond)))
+                
+                converted.extend(convert_ternary(expand_metadata(retrocompatibility(cond))))
 
             self.filters.append(converted)
 
@@ -209,14 +242,23 @@ class inequality_engine:
         queries = []
         for i, cols in enumerate(self.needed_columns):
             if not query_master:
-                query = session.query(DataIdentifier.scope, DataIdentifier.name, DataIdentifier.did_type, DataIdentifier.bytes, *[eval(getattr(getattr(sys.modules[__name__], model), c)) for c in cols])
+                query = session.query(DataIdentifier.scope,
+                                      DataIdentifier.name,
+                                      DataIdentifier.did_type,
+                                      DataIdentifier.bytes,
+                                      *[eval(getattr(getattr(sys.modules[__name__], model), c)) for c in cols])
             else:
-                query = query_master.add_columns(DataIdentifier.scope, DataIdentifier.name, DataIdentifier.did_type, DataIdentifier.bytes, *[eval(getattr(getattr(sys.modules[__name__], model), c)) for c in cols])
+                query = query_master.add_columns(DataIdentifier.scope,
+                                                 DataIdentifier.name,
+                                                 DataIdentifier.did_type,
+                                                 DataIdentifier.bytes,
+                                                 *[eval(getattr(getattr(sys.modules[__name__], model), c)) for c in cols])
             for cond in self.filters[i]:
                 s = flip_if_needed(condition_split(cond.replace(model + '.', '')))
                 k = s[0]
                 op = s[1]
                 v = s[2]
+
                 if ('*' in cond or '%' in cond) and (op == '=='):
                     if v in ('*', '%', u'*', u'%'):
                         continue
