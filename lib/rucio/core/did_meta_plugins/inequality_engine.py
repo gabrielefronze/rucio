@@ -152,24 +152,23 @@ def flip_if_needed(listed_condition, model=DEFAULT_MODEL):
 
 def handle_created(condition):
     if "created_after" in condition or "created_before" in condition:
-        date_str = condition.replace(' ','').split('=',1)[1]
+        date_str = condition.replace(' ', '').split('=', 1)[1]
         if "created_after" in condition:
-            return "created_at > "+datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+            return "created_at > " + datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
         elif "created_before" in condition:
-            return "created_at < "+datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+            return "created_at < " + datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
     return condition
 
 
-HANDLE_LENGTH_LUT = {
-                     "length.gte=": "length >= ",
+HANDLE_LENGTH_LUT = {"length.gte=": "length >= ",
                      "length.gt=": "length > ",
                      "length.lte=": "length <= ",
                      "length.lt=": "length < ",
-                    }
+                     }
 
 
 def handle_length(condition):
-    condition.replace(' ','')
+    condition.replace(' ', '')
     for key in HANDLE_LENGTH_LUT.keys():
         if key in condition:
             condition.replace(key, HANDLE_LENGTH_LUT[key])
@@ -195,7 +194,6 @@ class inequality_engine:
             converted = []
 
             for cond in conditions:
-                
                 converted.extend(convert_ternary(expand_metadata(retrocompatibility(cond))))
 
             self.filters.append(converted)
