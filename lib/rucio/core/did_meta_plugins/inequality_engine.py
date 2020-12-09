@@ -257,7 +257,7 @@ class inequality_engine:
                 op = s[1]
                 v = s[2]
 
-                if "created_after" in k or "created_before" in k:
+                if k == "created_at":
                     v = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
 
 
