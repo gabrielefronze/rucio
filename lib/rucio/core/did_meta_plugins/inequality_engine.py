@@ -258,7 +258,7 @@ class inequality_engine:
                 v = s[2]
 
                 if k == "created_at":
-                    v = str_to_date(date_to_str(v))
+                    v = date_to_str(str_to_date(v))
 
                 if ('*' in cond or '%' in cond) and (op == '=='):
                     if v in ('*', '%', u'*', u'%'):
