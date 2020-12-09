@@ -20,10 +20,10 @@
 
 import sys
 import re
-import datetime
 from rucio.db.sqla.models import DataIdentifier
 from rucio.db.sqla.session import read_session
 from rucio.common.exception import KeyNotFound
+from rucio.common.utils import str_to_date, date_to_str
 
 DEFAULT_MODEL = DataIdentifier.__name__
 
@@ -258,7 +258,7 @@ class inequality_engine:
                 v = s[2]
 
                 if k == "created_at":
-                    v = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
+                    v = str_to_date(date_to_str(v))
 
                 if ('*' in cond or '%' in cond) and (op == '=='):
                     if v in ('*', '%', u'*', u'%'):
