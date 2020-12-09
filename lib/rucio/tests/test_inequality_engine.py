@@ -20,6 +20,7 @@
 
 import unittest
 import datetime
+import time
 from rucio.common.config import config_get, config_get_bool
 from rucio.common.types import InternalAccount, InternalScope
 from rucio.common.utils import generate_uuid
@@ -146,7 +147,7 @@ class TestRetrocomatibility(unittest.TestCase):
 
     def test_HandleCreatedAfter(self):
         string = "created_after=1900-01-01T00:00:00.000Z"
-        control = "created_at > " + datetime.datetime.strptime("1900-01-01T00:00:00.000Z", '%Y-%m-%dT%H:%M:%S.%fZ')
+        control = "created_at > 1900-01-01T00:00:00.000Z"
         self.assertEqual(handle_created(string), control)
 
         string = "created_after = 1900-01-01T00:00:00.000Z"
@@ -154,7 +155,7 @@ class TestRetrocomatibility(unittest.TestCase):
 
     def test_HandleCreatedBefore(self):
         string = "created_before=1900-01-01T00:00:00.000Z"
-        control = "created_at < " + datetime.datetime.strptime("1900-01-01T00:00:00.000Z", '%Y-%m-%dT%H:%M:%S.%fZ')
+        control = "created_at < 1900-01-01T00:00:00.000Z"
         self.assertEqual(handle_created(string), control)
 
         string = "created_before = 1900-01-01T00:00:00.000Z"
@@ -324,6 +325,62 @@ class TestInequalityEngineOnline(unittest.TestCase):
 
         dids = []
         for q in inequality_engine("length == 88, run_number == 42").createQueries():
+            dids += [did for did in q.yield_per(5)]
+
+        self.assertTrue(any(map(lambda did: did.name == did_name, dids)))
+
+    @read_session
+    def test_InequalityEngineRetrocompatibilityLength(self, session=None):
+        did_name = 'inequality_test_did_%s' % generate_uuid()
+        add_did(scope=self.tmp_scope, name=did_name, type='DATASET', account=self.root)
+        set_metadata(scope=self.tmp_scope, name=did_name, key='length', value='4242')
+
+        dids = []
+        for q in inequality_engine("length.gte=4242").createQueries():
+            dids += [did for did in q.yield_per(5)]
+
+        self.assertTrue(any(map(lambda did: did.name == did_name, dids)))
+
+        dids = []
+        for q in inequality_engine("length.gt=4241").createQueries():
+            dids += [did for did in q.yield_per(5)]
+
+        self.assertTrue(any(map(lambda did: did.name == did_name, dids)))
+
+        dids = []
+        for q in inequality_engine("length.lte=4242").createQueries():
+            dids += [did for did in q.yield_per(5)]
+
+        self.assertTrue(any(map(lambda did: did.name == did_name, dids)))
+
+        dids = []
+        for q in inequality_engine("length.lt=4243").createQueries():
+            dids += [did for did in q.yield_per(5)]
+
+        self.assertTrue(any(map(lambda did: did.name == did_name, dids)))
+
+    @read_session
+    def test_InequalityEngineRetrocompatibilityCreatedAfter(self, session=None):
+        now = datetime.datetime.now()
+        sleep(5)
+        did_name = 'inequality_test_did_%s' % generate_uuid()
+        add_did(scope=self.tmp_scope, name=did_name, type='DATASET', account=self.root)
+
+        dids = []
+        for q in inequality_engine("created_after="+f"{now:%Y-%m-%dT%H:%M:%S.%fZ}").createQueries():
+            dids += [did for did in q.yield_per(5)]
+
+        self.assertTrue(any(map(lambda did: did.name == did_name, dids)))
+
+    @read_session
+    def test_InequalityEngineRetrocompatibilityCreatedAfter(self, session=None):
+        did_name = 'inequality_test_did_%s' % generate_uuid()
+        add_did(scope=self.tmp_scope, name=did_name, type='DATASET', account=self.root)
+        sleep(5)
+        now = datetime.datetime.now()
+        
+        dids = []
+        for q in inequality_engine("created_before="+f"{now:%Y-%m-%dT%H:%M:%S.%fZ}").createQueries():
             dids += [did for did in q.yield_per(5)]
 
         self.assertTrue(any(map(lambda did: did.name == did_name, dids)))

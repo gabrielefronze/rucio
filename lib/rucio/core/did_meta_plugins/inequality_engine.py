@@ -154,9 +154,9 @@ def handle_created(condition):
     if "created_after" in condition or "created_before" in condition:
         date_str = condition.replace(' ', '').split('=', 1)[1]
         if "created_after" in condition:
-            return "created_at > " + datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+            return "created_at > " + date_str
         elif "created_before" in condition:
-            return "created_at < " + datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+            return "created_at < " + date_str
     return condition
 
 
@@ -168,10 +168,10 @@ HANDLE_LENGTH_LUT = {"length.gte=": "length >= ",
 
 
 def handle_length(condition):
-    condition.replace(' ', '')
     for key in HANDLE_LENGTH_LUT.keys():
         if key in condition:
-            condition.replace(key, HANDLE_LENGTH_LUT[key])
+            condition = condition.replace(' ', '')
+            condition = condition.replace(key, HANDLE_LENGTH_LUT[key])
             return condition
     return condition
 
@@ -256,6 +256,10 @@ class inequality_engine:
                 k = s[0]
                 op = s[1]
                 v = s[2]
+
+                if "created_after" in k or "created_before" in k:
+                    v = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
+
 
                 if ('*' in cond or '%' in cond) and (op == '=='):
                     if v in ('*', '%', u'*', u'%'):
