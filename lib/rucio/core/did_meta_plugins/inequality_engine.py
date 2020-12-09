@@ -260,7 +260,6 @@ class inequality_engine:
                 if k == "created_at":
                     v = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
 
-
                 if ('*' in cond or '%' in cond) and (op == '=='):
                     if v in ('*', '%', u'*', u'%'):
                         continue
@@ -273,7 +272,7 @@ class inequality_engine:
                 else:
                     if hasattr(getattr(sys.modules[__name__], model), k):
                         if (op in STD_OP + STD_OP_NOSPACE):
-                            query = query.filter(eval(k+op+v))
+                            query = query.filter(eval(k + op + v))
                         else:
                             raise Exception("Comparison operator not supported.")
                     else:
