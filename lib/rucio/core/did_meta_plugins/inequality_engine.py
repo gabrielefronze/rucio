@@ -272,7 +272,7 @@ class inequality_engine:
                 else:
                     if hasattr(getattr(sys.modules[__name__], model), k):
                         if (op in STD_OP + STD_OP_NOSPACE):
-                            query = query.filter(eval(getattr(getattr(sys.modules[__name__], model), k) + op + v))
+                            query = query.filter(eval(model + '.' + k + op + v))
                         else:
                             raise Exception("Comparison operator not supported.")
                     else:
