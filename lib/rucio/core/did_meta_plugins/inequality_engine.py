@@ -24,7 +24,7 @@ import datetime
 from rucio.db.sqla.models import DataIdentifier
 from rucio.db.sqla.session import read_session
 from rucio.common.exception import KeyNotFound
-from rucio.common.utils import str_to_date, date_to_str
+from rucio.common.utils import date_to_str
 
 DEFAULT_MODEL = DataIdentifier.__name__
 
