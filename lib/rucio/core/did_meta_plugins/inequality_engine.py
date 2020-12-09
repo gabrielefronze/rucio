@@ -24,7 +24,7 @@ import datetime
 from rucio.db.sqla.models import DataIdentifier
 from rucio.db.sqla.session import read_session
 from rucio.common.exception import KeyNotFound
-from rucio.common.utils import date_to_str
+from rucio.common.utils import date_to_str, str_to_date
 
 DEFAULT_MODEL = DataIdentifier.__name__
 
@@ -155,9 +155,9 @@ def handle_created(condition):
     if "created_after" in condition or "created_before" in condition:
         date_str = condition.replace(' ', '').split('=', 1)[1]
         if "created_after" in condition:
-            return "created_at > " + date_str
+            return "created_at >= " + date_str
         elif "created_before" in condition:
-            return "created_at < " + date_str
+            return "created_at <= " + date_str
     return condition
 
 
@@ -258,9 +258,6 @@ class inequality_engine:
                 op = s[1]
                 v = s[2]
 
-                if k == "created_at":
-                    v = date_to_str(datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ'))
-
                 if ('*' in cond or '%' in cond) and (op == '=='):
                     if v in ('*', '%', u'*', u'%'):
                         continue
@@ -273,7 +270,18 @@ class inequality_engine:
                 else:
                     if hasattr(getattr(sys.modules[__name__], model), k):
                         if (op in STD_OP + STD_OP_NOSPACE):
-                            query = query.filter(eval(model + '.' + k + op + v))
+                            if "created_at" == k:
+                                date = str_to_date(v)
+                                if op =="<=":
+                                    query = query.filter(DataIdentifier.created_at <= date)
+                                elif op =="<":
+                                    query = query.filter(DataIdentifier.created_at < date)
+                                elif op ==">=":
+                                    query = query.filter(DataIdentifier.created_at >= date)
+                                elif op ==">":
+                                    query = query.filter(DataIdentifier.created_at > date)
+                            else:
+                                query = query.filter(eval(model + '.' + k + op + v))
                         else:
                             raise Exception("Comparison operator not supported.")
                     else:
