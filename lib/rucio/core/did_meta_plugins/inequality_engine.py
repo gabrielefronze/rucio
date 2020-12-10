@@ -271,7 +271,7 @@ class inequality_engine:
                     if hasattr(getattr(sys.modules[__name__], model), k):
                         if (op in STD_OP + STD_OP_NOSPACE):
                             if "created_at" == k:
-                                date = str_to_date(v)
+                                date = str_to_date(datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ'))
                                 if op =="<=":
                                     query = query.filter(DataIdentifier.created_at <= date)
                                 elif op =="<":
