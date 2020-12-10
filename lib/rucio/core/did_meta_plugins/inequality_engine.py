@@ -24,7 +24,7 @@ import datetime
 from rucio.db.sqla.models import DataIdentifier
 from rucio.db.sqla.session import read_session
 from rucio.common.exception import KeyNotFound
-from rucio.common.utils import date_to_str, str_to_date
+# from rucio.common.utils import date_to_str, str_to_date
 
 DEFAULT_MODEL = DataIdentifier.__name__
 
@@ -271,15 +271,17 @@ class inequality_engine:
                     if hasattr(getattr(sys.modules[__name__], model), k):
                         if (op in STD_OP + STD_OP_NOSPACE):
                             if "created_at" == k:
-                                date = str_to_date(datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ'))
-                                if op =="<=":
+                                date = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
+                                if op == "<=":
                                     query = query.filter(DataIdentifier.created_at <= date)
-                                elif op =="<":
+                                elif op == "<":
                                     query = query.filter(DataIdentifier.created_at < date)
-                                elif op ==">=":
+                                elif op == ">=":
                                     query = query.filter(DataIdentifier.created_at >= date)
-                                elif op ==">":
+                                elif op == ">":
                                     query = query.filter(DataIdentifier.created_at > date)
+                                elif op == "==":
+                                    query = query.filter(DataIdentifier.created_at == date)
                             else:
                                 query = query.filter(eval(model + '.' + k + op + v))
                         else:
