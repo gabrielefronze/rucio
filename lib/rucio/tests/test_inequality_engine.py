@@ -147,7 +147,7 @@ class TestRetrocomatibility(unittest.TestCase):
 
     def test_HandleCreatedAfter(self):
         string = "created_after=1900-01-01T00:00:00.000Z"
-        control = "created_at > 1900-01-01T00:00:00.000Z"
+        control = "created_at >= 1900-01-01T00:00:00.000Z"
         self.assertEqual(handle_created(string), control)
 
         string = "created_after = 1900-01-01T00:00:00.000Z"
@@ -155,7 +155,7 @@ class TestRetrocomatibility(unittest.TestCase):
 
     def test_HandleCreatedBefore(self):
         string = "created_before=1900-01-01T00:00:00.000Z"
-        control = "created_at < 1900-01-01T00:00:00.000Z"
+        control = "created_at <= 1900-01-01T00:00:00.000Z"
         self.assertEqual(handle_created(string), control)
 
         string = "created_before = 1900-01-01T00:00:00.000Z"
