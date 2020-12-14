@@ -43,6 +43,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from hashlib import md5
 from re import match
+from datetime import datetime
 
 from six import string_types
 from sqlalchemy import and_, or_, exists
@@ -55,7 +56,7 @@ import rucio.core.replica  # import add_replicas
 import rucio.core.rule
 from rucio.common import exception
 from rucio.common.config import config_get
-from rucio.common.utils import str_to_date, is_archive, chunks
+from rucio.common.utils import str_to_date, is_archive, chunks, date_to_str
 from rucio.core import did_meta_plugins, config as config_core
 from rucio.core.message import add_message
 from rucio.core.monitor import record_timer_block, record_counter
@@ -1373,7 +1374,7 @@ def set_status(scope, name, session=None, **kwargs):
 
 @stream_session
 def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=None,
-              offset=None, long=False, recursive=False, session=None, filterstr=None):
+              offset=None, long=False, recursive=False, session=None):
     """
     Search data identifiers
 
@@ -1401,68 +1402,20 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
     # Exclude suppressed dids
     query = query.filter(models.DataIdentifier.suppressed != true())
 
-    if type == 'all':
-        query = query.filter(or_(models.DataIdentifier.did_type == DIDType.CONTAINER,
-                                 models.DataIdentifier.did_type == DIDType.DATASET,
-                                 models.DataIdentifier.did_type == DIDType.FILE))
-    elif type.lower() == 'collection':
-        query = query.filter(or_(models.DataIdentifier.did_type == DIDType.CONTAINER,
-                                 models.DataIdentifier.did_type == DIDType.DATASET))
-    elif type.lower() == 'container':
-        query = query.filter(models.DataIdentifier.did_type == DIDType.CONTAINER)
-    elif type.lower() == 'dataset':
-        query = query.filter(models.DataIdentifier.did_type == DIDType.DATASET)
-    elif type.lower() == 'file':
-        query = query.filter(models.DataIdentifier.did_type == DIDType.FILE)
+    if isinstance(filters, dict):
+        for key, value in filters.items():
+            if isinstance(value, datetime):
+                filters[key] = date_to_str(value)
 
-    if filterstr is None:
-        if filters:
-            for (k, v) in filters.items():
+    if "type" not in filters:            
+        if isinstance(filters, str):
+            filters = filters.replace(";", ", type == %s;" % type)
+        elif isinstance(filters, dict):
+            filters['type'] = type
 
-                if k not in ['created_before', 'created_after', 'length.gt', 'length.lt', 'length.lte', 'length.gte', 'length'] \
-                   and not hasattr(models.DataIdentifier, k):
-                    raise exception.KeyNotFound(k)
+    queries = inequality_engine(filters).createQueries(query_master=query)
 
-                if isinstance(v, string_types) and ('*' in v or '%' in v):
-                    if v in ('*', '%', u'*', u'%'):
-                        continue
-                    if session.bind.dialect.name == 'postgresql':
-                        query = query.filter(getattr(models.DataIdentifier, k).
-                                             like(v.replace('*', '%').replace('_', '\_'),  # NOQA: W605
-                                             escape='\\'))
-                    else:
-                        query = query.filter(getattr(models.DataIdentifier, k).
-                                             like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
-                elif k == 'created_before':
-                    created_before = str_to_date(v)
-                    query = query.filter(models.DataIdentifier.created_at <= created_before)
-                elif k == 'created_after':
-                    created_after = str_to_date(v)
-                    query = query.filter(models.DataIdentifier.created_at >= created_after)
-                elif k == 'guid':
-                    query = query.filter_by(guid=v).\
-                        with_hint(models.ReplicaLock, "INDEX(DIDS_GUIDS_IDX)", 'oracle')
-                elif k == 'length.gt':
-                    query = query.filter(models.DataIdentifier.length > v)
-                elif k == 'length.lt':
-                    query = query.filter(models.DataIdentifier.length < v)
-                elif k == 'length.gte':
-                    query = query.filter(models.DataIdentifier.length >= v)
-                elif k == 'length.lte':
-                    query = query.filter(models.DataIdentifier.length <= v)
-                elif k == 'length':
-                    query = query.filter(models.DataIdentifier.length == v)
-                else:
-                    query = query.filter(getattr(models.DataIdentifier, k) == v)
-
-            if 'name' in filters:
-                if '*' in filters['name']:
-                    query = query.\
-                        with_hint(models.DataIdentifier, "NO_INDEX(dids(SCOPE,NAME))", 'oracle')
-                else:
-                    query = query.\
-                        with_hint(models.DataIdentifier, "INDEX(DIDS DIDS_PK)", 'oracle')
-
+    for query in queries:
         if limit:
             query = query.limit(limit)
 
@@ -1473,53 +1426,22 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
 
             from rucio.core.did import list_content
 
-            for scope, name, did_type, bytes, length in query.yield_per(100):
-                if (did_type == DIDType.CONTAINER or did_type == DIDType.DATASET):
-                    collections_content += [did for did in list_content(scope=scope, name=name)]
+            for did in query.yield_per(100):
+                if (did.did_type == DIDType.CONTAINER or did.did_type == DIDType.DATASET):
+                    collections_content += [d for d in list_content(scope=did.scope, name=did.name)]
 
             # List DIDs again to use filter
             for did in collections_content:
-                filters['name'] = did['name']
+                filters = filters.replace(";", ", name == %s;" % did['name'])
                 for result in list_dids(scope=did['scope'], filters=filters, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
                     yield result
 
         if long:
-            for scope, name, did_type, bytes, length in query.yield_per(5):
-                yield {'scope': scope, 'name': name, 'did_type': str(did_type), 'bytes': bytes, 'length': length}
+            for did in query.yield_per(5):
+                yield {'scope': did.scope, 'name': did.name, 'did_type': str(did.did_type), 'bytes': did.bytes, 'length': did.length}
         else:
-            for scope, name, did_type, bytes, length in query.yield_per(5):
-                yield name
-
-    else:
-        queries = inequality_engine(filterstr).createQueries(query_master=query)
-
-        for query in queries:
-            if limit:
-                query = query.limit(limit)
-
-            if recursive:
-                # Get attachted DIDs and save in list because query has to be finished before starting a new one in the recursion
-                collections_content = []
-                parent_scope = scope
-
-                from rucio.core.did import list_content
-
-                for scope, name, did_type, bytes, length in query.yield_per(100):
-                    if (did_type == DIDType.CONTAINER or did_type == DIDType.DATASET):
-                        collections_content += [did for did in list_content(scope=scope, name=name)]
-
-                # List DIDs again to use filter
-                for did in collections_content:
-                    filters['name'] = did['name']
-                    for result in list_dids(scope=did['scope'], filterstr=filterstr, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
-                        yield result
-
-            if long:
-                for did in query.yield_per(5):
-                    yield {'scope': did.scope, 'name': did.name, 'did_type': str(did.did_type), 'bytes': did.bytes, 'length': did.length}
-            else:
-                for did in query.yield_per(5):
-                    yield did.name
+            for did in query.yield_per(5):
+                yield did.name
 
 
 @read_session

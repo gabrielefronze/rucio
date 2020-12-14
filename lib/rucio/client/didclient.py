@@ -36,6 +36,8 @@ try:
 except ImportError:
     from urllib.parse import quote_plus
 
+from datetime import datetime
+
 from json import dumps, loads
 from requests.status_codes import codes
 
@@ -56,7 +58,7 @@ class DIDClient(BaseClient):
         super(DIDClient, self).__init__(rucio_host, auth_host, account, ca_cert,
                                         auth_type, creds, timeout, user_agent, vo=vo)
 
-    def list_dids(self, scope, filters=None, type='collection', long=False, recursive=False, filterstr=None):
+    def list_dids(self, scope, filters=None, type='collection', long=False, recursive=False):
         """
         List all data identifiers in a scope which match a given pattern.
 
@@ -67,18 +69,24 @@ class DIDClient(BaseClient):
         :param recursive: Recursively list DIDs content.
         """
         path = '/'.join([self.DIDS_BASEURL, quote_plus(scope), 'dids', 'search'])
-        payload = {}
+        payload = {'filters': filters}
+        
+        if not filters:
+            payload['filters'] = {}
+            payload['filters']['type'] = type
+        else:
+            if "type" not in filters:
+                if isinstance(filters, str):
+                    payload['filters'] = payload['filters'].replace(";", ", type == %s;" % type)
+                elif isinstance(filters, dict):
+                    payload['filters']['type'] = type
 
-        if filters:
-            for k, v in list(filters.items()):
-                if k in ('created_before', 'created_after'):
-                    payload[k] = date_to_str(v)
-                else:
-                    payload[k] = v
-        elif filterstr:
-            payload['filterstr'] = filterstr
+            if isinstance(filters, dict):
+                for key, value in filters.items():
+                    if isinstance(value, datetime):
+                        payload['filters'][key] = value.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
         payload['long'] = long
-        payload['type'] = type
         payload['recursive'] = recursive
 
         url = build_url(choice(self.list_hosts), path=path, params=payload)

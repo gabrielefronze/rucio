@@ -47,7 +47,7 @@ from rucio.core.rse import get_rse_id
 from rucio.db.sqla.constants import DIDType
 
 
-def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=None, offset=None, long=False, recursive=False, vo='def', filterstr=None):
+def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=None, offset=None, long=False, recursive=False, vo='def'):
     """
     List dids in a scope.
 
@@ -61,44 +61,27 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
     :param recursive: Recursively list DIDs content.
     :param vo: The VO to act on.
     """
-    if filterstr is None:
-        validate_schema(name='did_filters', obj=filters)
+    
+    scope = InternalScope(scope, vo=vo)
+    splitted = filters.split()
 
-        scope = InternalScope(scope, vo=vo)
+    if 'account' in splitted:
+        indices = [i for i, x in enumerate(splitted) if x == "account"]
+        for i in indices:
+            account = splitted.at(i + 2)
+            splitted.insert(i + 2, InternalAccount(account, vo=vo))
+    if 'scope' in splitted:
+        indices = [i for i, x in enumerate(splitted) if x == "scope"]
+        for i in indices:
+            scope = splitted.at(i + 2)
+            splitted.insert(i + 2, InternalScope(scope, vo=vo))
+    filters = ' '.join(splitted)
 
-        if filters:
-            if 'account' in filters:
-                filters['account'] = InternalAccount(filters['account'], vo=vo)
-            if 'scope' in filters:
-                filters['scope'] = InternalScope(filters['scope'], vo=vo)
+    result = did.list_dids(scope=scope, filters=filters, type=type, ignore_case=ignore_case,
+                            limit=limit, offset=offset, long=long, recursive=recursive)
 
-        result = did.list_dids(scope=scope, filters=filters, type=type, ignore_case=ignore_case,
-                               limit=limit, offset=offset, long=long, recursive=recursive, filterstr=None)
-
-        for d in result:
-            yield api_update_return_dict(d)
-
-    else:
-        scope = InternalScope(scope, vo=vo)
-        splitted = filterstr.split()
-
-        if 'account' in splitted:
-            indices = [i for i, x in enumerate(splitted) if x == "account"]
-            for i in indices:
-                account = splitted.at(i + 2)
-                splitted.insert(i + 2, InternalAccount(account, vo=vo))
-        if 'scope' in splitted:
-            indices = [i for i, x in enumerate(splitted) if x == "scope"]
-            for i in indices:
-                scope = splitted.at(i + 2)
-                splitted.insert(i + 2, InternalScope(scope, vo=vo))
-        filterstr = ' '.join(splitted)
-
-        result = did.list_dids(scope=scope, filters=None, type=type, ignore_case=ignore_case,
-                               limit=limit, offset=offset, long=long, recursive=recursive, filterstr=filterstr)
-
-        for d in result:
-            yield api_update_return_dict(d)
+    for d in result:
+        yield api_update_return_dict(d)
 
 
 def list_dids_extended(scope, filters, type='collection', ignore_case=False, limit=None, offset=None, long=False, recursive=False, vo='def'):

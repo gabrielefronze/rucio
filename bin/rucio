@@ -523,7 +523,7 @@ def detach(args):
 @exception_handler
 def list_dids(args):
     """
-    %(prog)s list-dids scope[:*|:name] [--filter 'key=value' | --filterstr 'value' | --recursive]
+    %(prog)s list-dids scope[:*|:name] [--filter 'value' | --recursive]
 
     List the data identifiers for a given scope.
     """
@@ -532,72 +532,29 @@ def list_dids(args):
     type = 'collection'
     table = []
 
-    if args.filter and args.filterstr:
-        raise Exception("Only one filter type supported at once.")
-
-    if not args.filterstr:
-        try:
-            filters, type = parse_did_filter_from_string(args.filter)
-        except InvalidType as error:
-            logger.error(error)
-            return FAILURE
-        except ValueError as error:
-            logger.error(error)
-            return FAILURE
-        except Exception:
-            logger.error("Invalid Filter. Filter must be 'key=value', 'key>=value', 'key>value', 'key<=value', 'key<value'")
-            return FAILURE
-
-        try:
-            scope, name = get_scope(args.did[0], client)
-            if name == '':
-                name = '*'
-        except InvalidObject:
-            scope = args.did[0]
+    try:
+        scope, name = get_scope(args.did[0], client)
+        if name == '':
             name = '*'
-        if scope not in client.list_scopes():
-            logger.error('Scope not found')
-            return FAILURE
+    except InvalidObject:
+        scope = args.did[0]
+        name = '*'
+    if scope not in client.list_scopes():
+        logger.error('Scope not found')
+        return FAILURE
 
-        if args.recursive and '*' in name:
-            logger.error('Option recursive cannot be used with wildcards')
-            return FAILURE
-        elif ('name' in filters) and (name != '*'):
-            logger.error('You cannot use a wildcard query and a filter by name')
-            return FAILURE
-        filters['name'] = name
+    filters = args.filter
 
-        for did in client.list_dids(scope, filters=filters, type=type, long=True, recursive=args.recursive):
-            table.append(['%s:%s' % (did['scope'], did['name']), did['did_type']])
-
-        if args.short:
-            for did, dummy in table:
-                print(did)
-        else:
-            print(tabulate.tabulate(table, tablefmt=tablefmt, headers=['SCOPE:NAME', '[DID TYPE]']))
-        return SUCCESS
-
+    if args.recursive and '*' in name:
+        logger.error('Option recursive cannot be used with wildcards')
+        return FAILURE
     else:
-        filters = args.filterstr
+        if filters:
+            if ('name' in filters) and (name != '*'):
+                logger.error('You cannot use a wildcard query and a filter by name')
+                return FAILURE
 
-        try:
-            scope, name = get_scope(args.did[0], client)
-            if name == '':
-                name = '*'
-        except InvalidObject:
-            scope = args.did[0]
-            name = '*'
-        if scope not in client.list_scopes():
-            logger.error('Scope not found')
-            return FAILURE
-
-        if args.recursive and '*' in name:
-            logger.error('Option recursive cannot be used with wildcards')
-            return FAILURE
-        elif ('name' in filters) and (name != '*'):
-            logger.error('You cannot use a wildcard query and a filter by name')
-            return FAILURE
-
+    if filters:
         splitted = filters.split()
 
         if 'account' in splitted:
@@ -606,15 +563,15 @@ def list_dids(args):
                 splitted.insert(i + 2, name)
         filters = ' '.join(splitted)
 
-        for did in client.list_dids(scope, filters=None, filterstr=filters, type=type, long=True, recursive=args.recursive):
-            table.append(['%s:%s' % (did['scope'], did['name']), did['did_type']])
+    for did in client.list_dids(scope, filters=None, type=type, long=True, recursive=args.recursive):
+        table.append(['%s:%s' % (did['scope'], did['name']), did['did_type']])
 
-        if args.short:
-            for did, dummy in table:
-                print(did)
-        else:
-            print(tabulate.tabulate(table, tablefmt=tablefmt, headers=['SCOPE:NAME', '[DID TYPE]']))
-        return SUCCESS
+    if args.short:
+        for did, dummy in table:
+            print(did)
+    else:
+        print(tabulate.tabulate(table, tablefmt=tablefmt, headers=['SCOPE:NAME', '[DID TYPE]']))
+    return SUCCESS
 
 
 @exception_handler
@@ -1984,8 +1941,7 @@ You can filter by key/value, e.g.::
 
     list_parser.set_defaults(function=list_dids)
     list_parser.add_argument('--recursive', dest='recursive', action='store_true', default=False, help='List data identifiers recursively.')
-    list_parser.add_argument('--filter', dest='filter', action='store', help='Filter arguments in form `key=value,another_key>=next_value`. Valid keys are type and length. Use `type` to specify a DID type to search for. Valid values are `ALL`, `COLLECTION`, `CONTAINER`, `DATASET`, `FILE`. Use `length` to filter for an amount of corresponding Data IDentifiers. Valid operators are `=`, `>`, `>=`, `<`, `<=`.')  # noqa: E501
-    list_parser.add_argument('--filterstr', dest='filterstr', action='store', help='Filter arguments in form suported by inequality-engine.')
+    list_parser.add_argument('--filter', dest='filter', action='store', help='Filter arguments in form suported by inequality-engine.')
     list_parser.add_argument('--short', dest='short', action='store_true', help='Just dump the list of DIDs.')
     list_parser.add_argument(dest='did', nargs=1, action='store', default=None, help='Data IDentifier pattern')
 

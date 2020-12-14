@@ -163,8 +163,8 @@ class Search(MethodView):
         """
 
         filters = None
-        filterstr = None
         limit = None
+        type = None
         long = False
         recursive = False
         query_string = request.query_string.decode()
@@ -178,8 +178,8 @@ class Search(MethodView):
                 long = v[0] in ['True', '1']
             elif k == 'recursive':
                 recursive = v[0] == 'True'
-            elif k == 'filterstr':
-                filterstr = v[0]
+            elif k == 'filters':
+                filters = v[0]
             else:
                 if not filters:
                     filters = {}
@@ -187,8 +187,12 @@ class Search(MethodView):
 
         try:
             def generate(vo):
-                for did in list_dids(scope=scope, filters=filters, filterstr=filterstr, type=type, limit=limit, long=long, recursive=recursive, vo=vo):
-                    yield dumps(did) + '\n'
+                if type:
+                    for did in list_dids(scope=scope, filters=filters, type=type, limit=limit, long=long, recursive=recursive, vo=vo):
+                        yield dumps(did) + '\n'
+                else:
+                    for did in list_dids(scope=scope, filters=filters, limit=limit, long=long, recursive=recursive, vo=vo):
+                        yield dumps(did) + '\n'
 
             return try_stream(generate(vo=request.environ.get('vo')))
         except UnsupportedOperation as error:

@@ -21,10 +21,15 @@
 import sys
 import re
 import datetime
+import json
+import ast
+from sqlalchemy import or_
 from rucio.db.sqla.models import DataIdentifier
 from rucio.db.sqla.session import read_session
 from rucio.common.exception import KeyNotFound
-# from rucio.common.utils import date_to_str, str_to_date
+from rucio.db.sqla.constants import DIDType
+from rucio.common import exception
+from rucio.common.utils import date_to_str
 
 DEFAULT_MODEL = DataIdentifier.__name__
 
@@ -42,6 +47,8 @@ INVERTED_STD_OP['>'] = '<'
 INVERTED_STD_OP['>='] = '<='
 INVERTED_STD_OP['<'] = '>'
 INVERTED_STD_OP['<='] = '>='
+
+VALID_TYPES = ['all', 'collection', 'container', 'dataset', 'file']
 
 
 def clear_double_spaces(input_string):
@@ -138,7 +145,10 @@ def condition_split(condition):
     s = re.split(OP_SPLIT_REGEX, condition)
     for op in STD_OP_NOSPACE:
         if op in condition:
-            return [s[0], op, s[1]]
+            if len(s) == 2:
+                return [s[0], op, s[1]]
+            else:
+                raise Exception("Invalid condition {}".format(condition))
     raise Exception("Condition splitting failed! No standard operation detected.")
 
 
@@ -153,7 +163,10 @@ def flip_if_needed(listed_condition, model=DEFAULT_MODEL):
 
 def handle_created(condition):
     if "created_after" in condition or "created_before" in condition:
-        date_str = condition.replace(' ', '').split('=', 1)[1]
+        if '==' in condition:
+            date_str = condition.replace(' ', '').split('==', 1)[1]
+        elif '=' in condition:
+            date_str = condition.replace(' ', '').split('=', 1)[1]
         if "created_after" in condition:
             return "created_at >= " + date_str
         elif "created_before" in condition:
@@ -161,33 +174,54 @@ def handle_created(condition):
     return condition
 
 
-HANDLE_LENGTH_LUT = {"length.gte=": "length >= ",
-                     "length.gt=": "length > ",
-                     "length.lte=": "length <= ",
-                     "length.lt=": "length < ",
+HANDLE_LENGTH_LUT = {".gte == ": " >= ",
+                     ".gt == ": " > ",
+                     ".lte == ": " <= ",
+                     ".lt == ": " < ",
+                     ".gte==": " >= ",
+                     ".gt==": " > ",
+                     ".lte==": " <= ",
+                     ".lt==": " < ",
+                     ".gte = ": " >= ",
+                     ".gt = ": " > ",
+                     ".lte = ": " <= ",
+                     ".lt = ": " < ",
+                     ".gte=": " >= ",
+                     ".gt=": " > ",
+                     ".lte=": " <= ",
+                     ".lt=": " < "
                      }
 
 
 def handle_length(condition):
-    for key in HANDLE_LENGTH_LUT.keys():
-        if key in condition:
-            condition = condition.replace(' ', '')
-            condition = condition.replace(key, HANDLE_LENGTH_LUT[key])
-            return condition
+    if "length" in condition:
+        for key in HANDLE_LENGTH_LUT.keys():
+            if key in condition:
+                new_condition = condition.replace(key, HANDLE_LENGTH_LUT[key])
+                return new_condition
     return condition
 
 
 def retrocompatibility(condition):
-    return handle_created(handle_length(condition))
+    new_cond = handle_created(handle_length(condition))
+    print(condition + " -> " + new_cond)
+    return new_cond
 
 
 class inequality_engine:
-    def __init__(self, input_string):
+    def __init__(self, input_data):
         """
         Organize the input string in sqlalchemy filters.
         Commas are interpreted as AND, semicolumns as OR between multiple filters.
         """
-        input_string = ingest(input_string)
+        input_data = str(input_data)
+        print("Input_data = {}".format(input_data))
+        input_string = ''
+        if not '{' in input_data and not '}' in input_data and isinstance(input_data, str):
+            input_string = ingest(input_data)
+        else:
+            input_string = ingest(input_data.replace('{', '').replace('}', '').replace("'", '').replace(' :', ':').replace(': ', ' == '))
+
         or_groups = input_string.split(';')
         self.filters = []
         for og in or_groups:
@@ -195,7 +229,8 @@ class inequality_engine:
             converted = []
 
             for cond in conditions:
-                converted.extend(convert_ternary(expand_metadata(retrocompatibility(cond))))
+                if not cond == '':
+                    converted.extend(convert_ternary(expand_metadata(retrocompatibility(cond))))
 
             self.filters.append(converted)
 
@@ -253,40 +288,64 @@ class inequality_engine:
                                                  DataIdentifier.bytes,
                                                  *[eval(getattr(getattr(sys.modules[__name__], model), c)) for c in cols])
             for cond in self.filters[i]:
-                s = flip_if_needed(condition_split(cond.replace(model + '.', '')))
-                k = s[0]
-                op = s[1]
-                v = s[2]
+                if not cond == '':
+                    s = flip_if_needed(condition_split(cond.replace(model + '.', '')))
+                    k = s[0]
+                    op = s[1]
+                    v = s[2]
 
-                if ('*' in cond or '%' in cond) and (op == '=='):
-                    if v in ('*', '%', u'*', u'%'):
+                    if k == 'type':
+                        if v not in VALID_TYPES:
+                            raise exception.UnsupportedOperation("Valid types are: %s" % str(VALID_TYPES))
+                        v = v.lower()
+                        if v == 'all':
+                            query = query.filter(or_(DataIdentifier.did_type == DIDType.CONTAINER,
+                                                    DataIdentifier.did_type == DIDType.DATASET,
+                                                    DataIdentifier.did_type == DIDType.FILE))
+                        elif v.lower() == 'collection':
+                            query = query.filter(or_(DataIdentifier.did_type == DIDType.CONTAINER,
+                                                    DataIdentifier.did_type == DIDType.DATASET))
+                        elif v.lower() == 'container':
+                            query = query.filter(DataIdentifier.did_type == DIDType.CONTAINER)
+                        elif v.lower() == 'dataset':
+                            query = query.filter(DataIdentifier.did_type == DIDType.DATASET)
+                        elif v.lower() == 'file':
+                            query = query.filter(DataIdentifier.did_type == DIDType.FILE)
+
                         continue
-                    if session.bind.dialect.name == 'postgresql':
-                        query = query.filter(getattr(getattr(sys.modules[__name__], model), k).
-                                             like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
-                    else:
-                        query = query.filter(getattr(getattr(sys.modules[__name__], model), k).
-                                             like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
-                else:
-                    if hasattr(getattr(sys.modules[__name__], model), k):
-                        if (op in STD_OP + STD_OP_NOSPACE):
-                            if "created_at" == k:
-                                date = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
-                                if op == "<=":
-                                    query = query.filter(DataIdentifier.created_at <= date)
-                                elif op == "<":
-                                    query = query.filter(DataIdentifier.created_at < date)
-                                elif op == ">=":
-                                    query = query.filter(DataIdentifier.created_at >= date)
-                                elif op == ">":
-                                    query = query.filter(DataIdentifier.created_at > date)
-                                elif op == "==":
-                                    query = query.filter(DataIdentifier.created_at == date)
-                            else:
-                                query = query.filter(eval(model + '.' + k + op + v))
+                        
+
+                    if ('*' in cond or '%' in cond) and (op == '=='):
+                        if v in ('*', '%', u'*', u'%'):
+                            continue
+                        if session.bind.dialect.name == 'postgresql':
+                            query = query.filter(getattr(getattr(sys.modules[__name__], model), k).
+                                                like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
                         else:
-                            raise Exception("Comparison operator not supported.")
+                            query = query.filter(getattr(getattr(sys.modules[__name__], model), k).
+                                                like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
                     else:
-                        raise KeyNotFound("key={}".format(k))
+                        if hasattr(getattr(sys.modules[__name__], model), k):
+                            if (op in STD_OP + STD_OP_NOSPACE):
+                                if "created_at" == k:
+                                    date = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
+                                    if op == "<=":
+                                        query = query.filter(DataIdentifier.created_at <= date)
+                                    elif op == "<":
+                                        query = query.filter(DataIdentifier.created_at < date)
+                                    elif op == ">=":
+                                        query = query.filter(DataIdentifier.created_at >= date)
+                                    elif op == ">":
+                                        query = query.filter(DataIdentifier.created_at > date)
+                                    elif op == "==":
+                                        query = query.filter(DataIdentifier.created_at == date)
+                                else:
+                                    if isinstance(v, str):
+                                        v = "\'" + v + "\'"
+                                        query = query.filter(eval(model + '.' + k + op + v))
+                            else:
+                                raise Exception("Comparison operator not supported.")
+                        else:
+                            raise KeyNotFound("key={}".format(k))
             queries.append(query)
         return queries

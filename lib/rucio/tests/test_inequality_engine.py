@@ -163,10 +163,13 @@ class TestRetrocomatibility(unittest.TestCase):
 
     def test_HandleLength(self):
         for key in HANDLE_LENGTH_LUT.keys():
-            string = key + "12345"
-            control = HANDLE_LENGTH_LUT[key] + "12345"
+            string = "length" + key + "12345"
+            control = "length" + HANDLE_LENGTH_LUT[key] + "12345"
             self.assertEqual(handle_length(string), control)
 
+        string = "length.gt == 0"
+        control = "length > 0"
+        self.assertEqual(handle_length(string), control)
 
 class TestInequalityEngineOffline(unittest.TestCase):
 
