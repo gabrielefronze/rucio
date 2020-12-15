@@ -80,7 +80,7 @@ def translate(input_string):
     return input_string
 
 
-def ingest(input_string):
+def ingest_str(input_string):
     """
     Groups all the functions needed to make filter string acceptable.
 
@@ -90,6 +90,19 @@ def ingest(input_string):
     """
     return clear_double_spaces(translate(clear_double_spaces(input_string)))
 
+
+def ingest_dict(input_dict):
+    return ingest_str(str(input_dict).replace('{', '').replace('}', '').replace("'", '').replace(' :', ':').replace(': ', ' == '))
+
+
+def ingest(input_data):
+    input_data = str(input_data).strip(' ').rstrip(' ')
+    input_string = ''
+    if (not '{' == input_data[0]) and (not '}' == input_data[-1]):
+        input_string = ingest_str(input_data)
+    else:
+        input_string = ingest_dict(input_data)
+    return input_string
 
 def get_num_op(input_string):
     """
@@ -142,6 +155,13 @@ def expand_metadata(input_string, model=DEFAULT_MODEL):
 
 
 def condition_split(condition):
+    """
+    Converts a string condition into a list in the form [key, standard op, value] for better addressing
+
+    :param condition: The string defining the condition to apply
+
+    :returns: a list in the form [key, op, value]
+    """
     s = re.split(OP_SPLIT_REGEX, condition)
     for op in STD_OP_NOSPACE:
         if op in condition:
@@ -153,6 +173,14 @@ def condition_split(condition):
 
 
 def flip_if_needed(listed_condition, model=DEFAULT_MODEL):
+    """
+    In case the condition list is in the form [value, op, key] it flis it into [key, inverted op, value]
+
+    :param listed_condition: The condition already converted in list form.
+    :param model: The string defining SQL model prefix to be prepended to keywords.
+
+    :returns: reworked string with metadata prefixes
+    """
     if len(listed_condition) == 3:
         if hasattr(getattr(sys.modules[__name__], model), listed_condition[2]):
             listed_condition.reverse()
@@ -162,6 +190,13 @@ def flip_if_needed(listed_condition, model=DEFAULT_MODEL):
 
 
 def handle_created(condition):
+    """
+    Converts the input condition containing created_after or created_before in the equivalent condition based upon created_at
+
+    :param condition: The string defining the condition to apply
+
+    :returns: reworked condition based on created_at if needed, passthrough if not
+    """
     if "created_after" in condition or "created_before" in condition:
         if '==' in condition:
             date_str = condition.replace(' ', '').split('==', 1)[1]
@@ -194,6 +229,13 @@ HANDLE_LENGTH_LUT = {".gte == ": " >= ",
 
 
 def handle_length(condition):
+    """
+    Handles legacy length.gt, length.gte, etc. converting such conditions to use length and inequalities
+
+    :param condition: The string defining the condition to apply
+
+    :returns: reworked condition based on length if needed, passthrough if not
+    """
     if "length" in condition:
         for key in HANDLE_LENGTH_LUT.keys():
             if key in condition:
@@ -203,8 +245,14 @@ def handle_length(condition):
 
 
 def retrocompatibility(condition):
+    """
+    Handles legacy conditions, passthrough if not needed
+
+    :param condition: The string defining the condition to apply
+
+    :returns: reworked condition if needed, passthrough if not
+    """
     new_cond = handle_created(handle_length(condition))
-    print(condition + " -> " + new_cond)
     return new_cond
 
 
@@ -214,13 +262,7 @@ class inequality_engine:
         Organize the input string in sqlalchemy filters.
         Commas are interpreted as AND, semicolumns as OR between multiple filters.
         """
-        input_data = str(input_data)
-        print("Input_data = {}".format(input_data))
-        input_string = ''
-        if not '{' in input_data and not '}' in input_data and isinstance(input_data, str):
-            input_string = ingest(input_data)
-        else:
-            input_string = ingest(input_data.replace('{', '').replace('}', '').replace("'", '').replace(' :', ':').replace(': ', ' == '))
+        input_string = ingest(str(input_data))
 
         or_groups = input_string.split(';')
         self.filters = []
