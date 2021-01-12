@@ -39,6 +39,7 @@
 import logging
 import random
 import sys
+import re
 from datetime import datetime, timedelta
 from enum import Enum
 from hashlib import md5
@@ -1432,7 +1433,13 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
 
             # List DIDs again to use filter
             for did in collections_content:
-                rec_filters = filters.replace(";", ", name == %s;" % did['name'])
+                rec_filters = ''
+                if 'name' not in filters:
+                    rec_filters = filters.replace(";", ", name == %s;" % did['name'])
+                else:
+                    split_filters = filters.split(';')
+                    for f in split_filters:
+                        rec_filters += re.sub(r'(?<=name == \b).*(?=\b(;,\n))', did['name'], flags=re.DOTALL))
                 for result in list_dids(scope=did['scope'], filters=rec_filters, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
                     yield result
 
