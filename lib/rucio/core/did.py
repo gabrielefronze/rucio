@@ -1432,8 +1432,8 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
 
             # List DIDs again to use filter
             for did in collections_content:
-                filters = filters.replace(";", ", name == %s;" % did['name'])
-                for result in list_dids(scope=did['scope'], filters=filters, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
+                rec_filters = filters.replace(";", ", name == %s;" % did['name'])
+                for result in list_dids(scope=did['scope'], filters=rec_filters, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
                     yield result
 
         if long:
