@@ -1431,6 +1431,8 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
                 if (did.did_type == DIDType.CONTAINER or did.did_type == DIDType.DATASET):
                     collections_content += [d for d in list_content(scope=did.scope, name=did.name)]
 
+            print("Recursive DIDs: ",collections_content)
+
             # List DIDs again to use filter
             for did in collections_content:
                 rec_filters = ''
@@ -1440,6 +1442,7 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
                     split_filters = filters.split(';')
                     for f in split_filters:
                         rec_filters += re.sub(r'(?<=name == \b).*(?=\b(;,\n))', did['name'], flags=re.DOTALL)
+                print("New filters: ",rec_filters)
                 for result in list_dids(scope=did['scope'], filters=rec_filters, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
                     yield result
 
