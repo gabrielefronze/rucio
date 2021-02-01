@@ -1441,7 +1441,7 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
                 else:
                     split_filters = filters.split(';')
                     for f in split_filters:
-                        rec_filters += re.sub(r'(?<=name == \b).*(?=\b(;,\n))', did['name'], flags=re.DOTALL)
+                        rec_filters += re.sub(r'(?<=name == \b).*(?=\b(;,\n))', did['name'], rec_filters, flags=re.DOTALL)
                 print("Original filters: ",filters)
                 print("New filters: ",rec_filters)
                 for result in list_dids(scope=did['scope'], filters=rec_filters, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
