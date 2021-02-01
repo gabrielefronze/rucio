@@ -277,7 +277,7 @@ class TestInequalityEngineOnline(unittest.TestCase):
         for q in inequality_engine("length == 100").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
     @read_session
     def test_InequalityEngineRange(self, session=None):
@@ -289,7 +289,7 @@ class TestInequalityEngineOnline(unittest.TestCase):
         for q in inequality_engine("99 < length < 101").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
     @read_session
     def test_InequalityEngineRangeEqual(self, session=None):
@@ -301,7 +301,7 @@ class TestInequalityEngineOnline(unittest.TestCase):
         for q in inequality_engine("100 <= length < 101").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
     @read_session
     def test_InequalityEngineOR(self, session=None):
@@ -316,8 +316,8 @@ class TestInequalityEngineOnline(unittest.TestCase):
         for q in inequality_engine("length == 7; length == 77").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name1, dids).count(True) == 1)
-        self.assertTrue(map(lambda did: did.name == did_name2, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name1, dids)).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name2, dids)).count(True) == 1)
 
     @read_session
     def test_InequalityEngineOR(self, session=None):
@@ -330,8 +330,8 @@ class TestInequalityEngineOnline(unittest.TestCase):
         for q in inequality_engine("name == {}; name == {}".format(did_name1, did_name2)).createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name1, dids).count(True) == 1)
-        self.assertTrue(map(lambda did: did.name == did_name2, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name1, dids)).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name2, dids)).count(True) == 1)
 
     @read_session
     def test_InequalityEngineAND(self, session=None):
@@ -344,7 +344,7 @@ class TestInequalityEngineOnline(unittest.TestCase):
         for q in inequality_engine("length == 88, run_number == 42").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
     @read_session
     def test_InequalityEngineRetrocompatibilityLength(self, session=None):
@@ -356,25 +356,25 @@ class TestInequalityEngineOnline(unittest.TestCase):
         for q in inequality_engine("length.gte=4242").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
         dids = []
         for q in inequality_engine("length.gt=4241").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
         dids = []
         for q in inequality_engine("length.lte=4242").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
         dids = []
         for q in inequality_engine("length.lt=4243").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
     @read_session
     def test_InequalityEngineRetrocompatibilityCreatedAfter(self, session=None):
@@ -387,7 +387,7 @@ class TestInequalityEngineOnline(unittest.TestCase):
         for q in inequality_engine("created_after=" + f"{now:%Y-%m-%dT%H:%M:%S.%fZ}").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
     @read_session
     def test_InequalityEngineRetrocompatibilityCreatedBefore(self, session=None):
@@ -400,7 +400,7 @@ class TestInequalityEngineOnline(unittest.TestCase):
         for q in inequality_engine("created_before=" + f"{now:%Y-%m-%dT%H:%M:%S.%fZ}").createQueries():
             dids += [did for did in q.yield_per(5)]
 
-        self.assertTrue(map(lambda did: did.name == did_name, dids).count(True) == 1)
+        self.assertTrue(list(map(lambda did: did.name == did_name, dids)).count(True) == 1)
 
 
 if __name__ == '__main__':
