@@ -256,6 +256,9 @@ def retrocompatibility(condition):
     return new_cond
 
 
+def transform_to_list(condition, model=DEFAULT_MODEL):
+    return flip_if_needed(condition_split(condition.replace(model + '.', '')))
+
 class inequality_engine:
     def __init__(self, input_data):
         """
@@ -272,7 +275,7 @@ class inequality_engine:
 
             for cond in conditions:
                 if not cond == '':
-                    converted.extend(convert_ternary(expand_metadata(retrocompatibility(cond))))
+                    converted.extend(transform_to_list(convert_ternary(expand_metadata(retrocompatibility(cond)))))
 
             self.filters.append(converted)
 
@@ -290,9 +293,8 @@ class inequality_engine:
             """
             columns = []
             for f in fil:
-                for word in f.split():
-                    if hasattr(getattr(sys.modules[__name__], model), word):
-                        columns.append(word)
+                if hasattr(getattr(sys.modules[__name__], model), f[0]):
+                    columns.append(f[0])
             return columns
 
         self.needed_columns = [get_query_columns(fil) for fil in self.filters]
@@ -330,64 +332,62 @@ class inequality_engine:
                                                  DataIdentifier.bytes,
                                                  *[eval(getattr(getattr(sys.modules[__name__], model), c)) for c in cols])
             for cond in self.filters[i]:
-                if not cond == '':
-                    s = flip_if_needed(condition_split(cond.replace(model + '.', '')))
-                    k = s[0]
-                    op = s[1]
-                    v = s[2]
+                k = cond[0]
+                op = cond[1]
+                v = cond[2]
 
-                    if k == 'type':
-                        if v not in VALID_TYPES:
-                            raise exception.UnsupportedOperation("Valid types are: %s" % str(VALID_TYPES))
-                        v = v.lower()
-                        if v == 'all':
-                            query = query.filter(or_(DataIdentifier.did_type == DIDType.CONTAINER,
-                                                    DataIdentifier.did_type == DIDType.DATASET,
-                                                    DataIdentifier.did_type == DIDType.FILE))
-                        elif v.lower() == 'collection':
-                            query = query.filter(or_(DataIdentifier.did_type == DIDType.CONTAINER,
-                                                    DataIdentifier.did_type == DIDType.DATASET))
-                        elif v.lower() == 'container':
-                            query = query.filter(DataIdentifier.did_type == DIDType.CONTAINER)
-                        elif v.lower() == 'dataset':
-                            query = query.filter(DataIdentifier.did_type == DIDType.DATASET)
-                        elif v.lower() == 'file':
-                            query = query.filter(DataIdentifier.did_type == DIDType.FILE)
+                if k == 'type':
+                    if v not in VALID_TYPES:
+                        raise exception.UnsupportedOperation("Valid types are: %s" % str(VALID_TYPES))
+                    v = v.lower()
+                    if v == 'all':
+                        query = query.filter(or_(DataIdentifier.did_type == DIDType.CONTAINER,
+                                                DataIdentifier.did_type == DIDType.DATASET,
+                                                DataIdentifier.did_type == DIDType.FILE))
+                    elif v.lower() == 'collection':
+                        query = query.filter(or_(DataIdentifier.did_type == DIDType.CONTAINER,
+                                                DataIdentifier.did_type == DIDType.DATASET))
+                    elif v.lower() == 'container':
+                        query = query.filter(DataIdentifier.did_type == DIDType.CONTAINER)
+                    elif v.lower() == 'dataset':
+                        query = query.filter(DataIdentifier.did_type == DIDType.DATASET)
+                    elif v.lower() == 'file':
+                        query = query.filter(DataIdentifier.did_type == DIDType.FILE)
 
+                    continue
+                    
+
+                if ('*' in cond or '%' in cond) and (op == '=='):
+                    if v in ('*', '%', u'*', u'%'):
                         continue
-                        
-
-                    if ('*' in cond or '%' in cond) and (op == '=='):
-                        if v in ('*', '%', u'*', u'%'):
-                            continue
-                        if session.bind.dialect.name == 'postgresql':
-                            query = query.filter(getattr(getattr(sys.modules[__name__], model), k).
-                                                like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
-                        else:
-                            query = query.filter(getattr(getattr(sys.modules[__name__], model), k).
-                                                like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
+                    if session.bind.dialect.name == 'postgresql':
+                        query = query.filter(getattr(getattr(sys.modules[__name__], model), k).
+                                            like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
                     else:
-                        if hasattr(getattr(sys.modules[__name__], model), k):
-                            if (op in STD_OP + STD_OP_NOSPACE):
-                                if "created_at" == k:
-                                    date = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
-                                    if op == "<=":
-                                        query = query.filter(DataIdentifier.created_at <= date)
-                                    elif op == "<":
-                                        query = query.filter(DataIdentifier.created_at < date)
-                                    elif op == ">=":
-                                        query = query.filter(DataIdentifier.created_at >= date)
-                                    elif op == ">":
-                                        query = query.filter(DataIdentifier.created_at > date)
-                                    elif op == "==":
-                                        query = query.filter(DataIdentifier.created_at == date)
-                                else:
-                                    if isinstance(v, str):
-                                        v = "\'" + v + "\'"
-                                        query = query.filter(eval(model + '.' + k + op + v))
+                        query = query.filter(getattr(getattr(sys.modules[__name__], model), k).
+                                            like(v.replace('*', '%').replace('_', '\_'), escape='\\'))  # NOQA: W605
+                else:
+                    if hasattr(getattr(sys.modules[__name__], model), k):
+                        if (op in STD_OP + STD_OP_NOSPACE):
+                            if "created_at" == k:
+                                date = datetime.datetime.strptime(v, '%Y-%m-%dT%H:%M:%S.%fZ')
+                                if op == "<=":
+                                    query = query.filter(DataIdentifier.created_at <= date)
+                                elif op == "<":
+                                    query = query.filter(DataIdentifier.created_at < date)
+                                elif op == ">=":
+                                    query = query.filter(DataIdentifier.created_at >= date)
+                                elif op == ">":
+                                    query = query.filter(DataIdentifier.created_at > date)
+                                elif op == "==":
+                                    query = query.filter(DataIdentifier.created_at == date)
                             else:
-                                raise Exception("Comparison operator not supported.")
+                                if isinstance(v, str):
+                                    v = "\'" + v + "\'"
+                                    query = query.filter(eval(model + '.' + k + op + v))
                         else:
-                            raise KeyNotFound("key={}".format(k))
+                            raise Exception("Comparison operator not supported.")
+                    else:
+                        raise KeyNotFound("key={}".format(k))
             queries.append(query)
         return queries
