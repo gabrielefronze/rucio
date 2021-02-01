@@ -528,7 +528,11 @@ def list_dids(args):
     List the data identifiers for a given scope.
     """
     client = get_client(args)
-    filters = {}
+    filters = args.filter
+
+    if not filters:
+        filters = {}
+
     type = 'collection'
     table = []
 
@@ -542,8 +546,6 @@ def list_dids(args):
     if scope not in client.list_scopes():
         logger.error('Scope not found')
         return FAILURE
-
-    filters = args.filter
 
     if args.recursive and '*' in name:
         logger.error('Option recursive cannot be used with wildcards')
