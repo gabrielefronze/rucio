@@ -1445,6 +1445,7 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
                         tmp = [c if not "name" in c else "<put_name_here>" for c in s.split(',')]
                         print("Temp filters: ",tmp)
                         rec_filters += (', '.join(tmp).replace("<put_name_here>", "name=={},".format(did['name']))).rstrip(',').replace('  ', ' ')+'; '
+                    rec_filters.rstrip(' ').rstrip(';')
                 print("New filters: ",rec_filters)
                 for result in list_dids(scope=did['scope'], filters=rec_filters, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
                     yield result
