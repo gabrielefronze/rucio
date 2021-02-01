@@ -531,7 +531,7 @@ def list_dids(args):
     filters = args.filter
 
     if not filters:
-        filters = {}
+        filters = ''
 
     type = 'collection'
     table = []
