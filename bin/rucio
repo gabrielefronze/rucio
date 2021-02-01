@@ -554,14 +554,11 @@ def list_dids(args):
                 logger.error('You cannot use a wildcard query and a filter by name')
                 return FAILURE
 
-    if filters:
-        splitted = filters.split()
-
-        if 'name' in splitted:
-            indices = [i for i, x in enumerate(splitted) if x == "name"]
-            for i in indices:
-                splitted.insert(i + 2, name)
-        filters = ' '.join(splitted)
+    if name:
+        if ';' in filters:
+            filters.replace(';', ', name == {};'.format(name))
+        else:
+            filters += ', name == {}'.format(name)
 
     for did in client.list_dids(scope, filters=filters, type=type, long=True, recursive=args.recursive):
         table.append(['%s:%s' % (did['scope'], did['name']), did['did_type']])
