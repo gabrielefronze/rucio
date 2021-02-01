@@ -1435,13 +1435,13 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
 
             # List DIDs again to use filter
             for did in collections_content:
+                print("Original filters: ",filters)
                 rec_filters = ''
                 if 'name' not in filters:
                     rec_filters = filters.replace(";", ", name == %s;" % did['name'])
                 else:
                     tmp = [c if not "name ==" in c else "<put_name_here>" for c in re.split('(?<=[,;])', filters)]
                     rec_filters = (' '.join(tmp).replace("<put_name_here>", "name == {},".format(did['name']))).rstrip(',').replace('  ', ' ')
-                print("Original filters: ",filters)
                 print("New filters: ",rec_filters)
                 for result in list_dids(scope=did['scope'], filters=rec_filters, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
                     yield result
