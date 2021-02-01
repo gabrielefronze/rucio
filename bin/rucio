@@ -563,7 +563,7 @@ def list_dids(args):
                 splitted.insert(i + 2, name)
         filters = ' '.join(splitted)
 
-    for did in client.list_dids(scope, filters=None, type=type, long=True, recursive=args.recursive):
+    for did in client.list_dids(scope, filters=filters, type=type, long=True, recursive=args.recursive):
         table.append(['%s:%s' % (did['scope'], did['name']), did['did_type']])
 
     if args.short:
