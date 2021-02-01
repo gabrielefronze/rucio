@@ -1435,7 +1435,6 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
 
             # List DIDs again to use filter
             for did in collections_content:
-                print("Original filters: ",filters)
                 rec_filters = ''
                 if 'name' not in filters:
                     rec_filters = filters.replace(";", ", name == %s;" % did['name'])
@@ -1444,10 +1443,8 @@ def list_dids(scope, filters=None, type='collection', ignore_case=False, limit=N
                     new_filters = []
                     for s in splitted:
                         tmp = [c if not "name" in c else "<put_name_here>" for c in s.split(',')]
-                        print("Temp filters: ",tmp)
                         new_filters.append((', '.join(tmp).replace("<put_name_here>", "name=={},".format(did['name']))).rstrip(',').replace('  ', ' '))
                     rec_filters = '; '.join(new_filters)
-                print("New filters: ",rec_filters)
                 for result in list_dids(scope=did['scope'], filters=rec_filters, recursive=True, type=type, limit=limit, offset=offset, long=long, session=session):
                     yield result
 
