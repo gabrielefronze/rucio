@@ -257,7 +257,7 @@ def retrocompatibility(condition):
 
 
 def transform_to_list(condition, model=DEFAULT_MODEL):
-    return [flip_if_needed(condition_split(c.replace(model + '.', ''))) for c in condition]
+    return flip_if_needed(condition_split(condition.replace(model + '.', '')))
 
 class inequality_engine:
     def __init__(self, input_data):
