@@ -557,7 +557,7 @@ def list_dids(args):
     if filters:
         splitted = filters.split()
 
-        if 'account' in splitted:
+        if 'name' in splitted:
             indices = [i for i, x in enumerate(splitted) if x == "name"]
             for i in indices:
                 splitted.insert(i + 2, name)
